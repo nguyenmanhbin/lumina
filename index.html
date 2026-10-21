@@ -1,0 +1,1322 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lumina — Photography Portfolio</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              neutralbg: "#09090b",
+              cardbg: "#121215",
+              cardborder: "#27272a",
+            },
+            fontFamily: {
+              sans: [
+                "Inter",
+                "-apple-system",
+                "BlinkMacSystemFont",
+                "sans-serif",
+              ],
+            },
+          },
+        },
+      };
+    </script>
+    <!-- FontAwesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Google Fonts Inter -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #09090b;
+        color: #f4f4f5;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #09090b;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #27272a;
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #3f3f46;
+      }
+      .masonry-grid {
+        column-count: 1;
+        column-gap: 1.25rem;
+      }
+      @media (min-width: 640px) {
+        .masonry-grid {
+          column-count: 2;
+        }
+      }
+      @media (min-width: 1024px) {
+        .masonry-grid {
+          column-count: 3;
+        }
+      }
+      @media (min-width: 1280px) {
+        .masonry-grid {
+          column-count: 4;
+        }
+      }
+      .masonry-item {
+        break-inside: avoid;
+        margin-bottom: 1.25rem;
+      }
+    </style>
+  </head>
+  <body
+    class="min-h-screen flex flex-col antialiased selection:bg-zinc-800 selection:text-white"
+  >
+    <!-- TOP NAVBAR (Clean, no visible admin link) -->
+    <header
+      class="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800/80"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between"
+      >
+        <!-- Logo -->
+        <a
+          href="#"
+          onclick="
+            navigateTo('');
+            return false;
+          "
+          class="flex items-center space-x-2.5 group"
+        >
+          <div
+            class="w-8 h-8 rounded-lg bg-zinc-100 text-zinc-950 flex items-center justify-center font-bold transition group-hover:bg-white"
+          >
+            <i class="fa-solid fa-camera text-sm"></i>
+          </div>
+          <span
+            class="text-lg font-semibold tracking-tight text-white group-hover:text-zinc-200 transition"
+            >LUMINA</span
+          >
+        </a>
+
+        <!-- Right Header Actions -->
+        <div class="flex items-center space-x-3">
+          <button
+            onclick="toggleFilterBar()"
+            class="px-3 py-1.5 rounded-lg border border-zinc-800 hover:border-zinc-700 bg-zinc-900 text-xs font-medium text-zinc-300 hover:text-white transition flex items-center gap-1.5"
+          >
+            <i class="fa-solid fa-sliders text-xs"></i>
+            <span>Filter</span>
+          </button>
+
+          <!-- Admin Logout Button (Only visible if admin logged in and on admin page) -->
+          <button
+            id="btn-logout"
+            onclick="handleLogout()"
+            class="hidden px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-medium transition flex items-center gap-1.5"
+          >
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div
+      id="toast-container"
+      class="fixed top-20 right-4 z-50 flex flex-col space-y-2 pointer-events-none"
+    ></div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- ==================== VIEWER SITE ==================== -->
+      <section id="site-viewer" class="space-y-8">
+        <!-- Minimal Hero Header -->
+        <div class="max-w-2xl py-4 space-y-3">
+          <h1
+            class="text-3xl sm:text-4xl font-semibold tracking-tight text-white"
+          >
+            Selected Works & Photography
+          </h1>
+          <p class="text-zinc-400 text-sm leading-relaxed">
+            A minimalist visual log celebrating fine art, landscape,
+            architecture, and portraiture photography.
+          </p>
+        </div>
+
+        <!-- Filter & Search Bar (Toggleable / Clean) -->
+        <div
+          id="filter-bar"
+          class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4 space-y-4"
+        >
+          <div class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-grow">
+              <i
+                class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"
+              ></i>
+              <input
+                type="text"
+                id="viewer-search-input"
+                oninput="renderViewerPosts()"
+                placeholder="Search collection..."
+                class="w-full pl-9 pr-4 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-600 text-xs transition"
+              />
+            </div>
+            <select
+              id="viewer-category-select"
+              onchange="renderViewerPosts()"
+              class="px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 text-xs focus:outline-none focus:border-zinc-600 transition"
+            >
+              <option value="ALL">All Categories</option>
+              <option value="Nature">Nature</option>
+              <option value="Urban">Urban</option>
+              <option value="Portrait">Portrait</option>
+              <option value="Architecture">Architecture</option>
+              <option value="Art">Art</option>
+            </select>
+          </div>
+
+          <!-- Category Pills -->
+          <div
+            id="category-pills"
+            class="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none"
+          ></div>
+        </div>
+
+        <!-- Posts Masonry Grid -->
+        <div id="viewer-posts-container" class="masonry-grid"></div>
+
+        <!-- Empty State -->
+        <div id="viewer-empty-state" class="hidden text-center py-20 space-y-3">
+          <div
+            class="w-12 h-12 bg-zinc-900 border border-zinc-800 rounded-full flex items-center justify-center mx-auto text-zinc-500 text-lg"
+          >
+            <i class="fa-regular fa-image"></i>
+          </div>
+          <h3 class="text-base font-medium text-zinc-300">No posts found</h3>
+          <p class="text-zinc-500 text-xs max-w-sm mx-auto">
+            Try adjusting your search criteria or category filter.
+          </p>
+        </div>
+      </section>
+
+      <!-- ==================== ADMIN LOGIN SECTION ==================== -->
+      <section
+        id="admin-login-section"
+        class="hidden py-16 flex items-center justify-center min-h-[50vh]"
+      >
+        <div
+          class="w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 space-y-6"
+        >
+          <div class="space-y-1">
+            <h2 class="text-xl font-semibold text-white">
+              Administrator Access
+            </h2>
+            <p class="text-xs text-zinc-400">
+              Sign in to manage posts and upload photos
+            </p>
+          </div>
+
+          <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+            <div class="space-y-1">
+              <label
+                class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider"
+                >Username</label
+              >
+              <input
+                type="text"
+                id="admin-username"
+                required
+                placeholder="admin"
+                class="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 focus:outline-none focus:border-zinc-600 text-xs transition"
+              />
+            </div>
+
+            <div class="space-y-1">
+              <label
+                class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider"
+                >Password</label
+              >
+              <input
+                type="password"
+                id="admin-password"
+                required
+                placeholder="••••••••"
+                class="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 focus:outline-none focus:border-zinc-600 text-xs transition"
+              />
+            </div>
+
+            <div
+              id="login-error"
+              class="hidden text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-lg text-center"
+            >
+              Invalid credentials!
+            </div>
+
+            <button
+              type="submit"
+              class="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs transition"
+            >
+              Sign In
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ==================== ADMIN DASHBOARD SECTION ==================== -->
+      <section id="site-admin" class="hidden space-y-8">
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800 pb-4"
+        >
+          <div>
+            <h2 class="text-2xl font-semibold text-white">Admin Dashboard</h2>
+            <p class="text-xs text-zinc-400">
+              Upload new photo sets and manage gallery posts
+            </p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button
+              onclick="setAdminTab('create')"
+              id="tab-btn-create"
+              class="px-3.5 py-2 rounded-xl text-xs font-semibold transition bg-zinc-100 text-zinc-950"
+            >
+              Create Post
+            </button>
+            <button
+              onclick="setAdminTab('manage')"
+              id="tab-btn-manage"
+              class="px-3.5 py-2 rounded-xl text-xs font-semibold transition bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white"
+            >
+              Manage Posts
+            </button>
+          </div>
+        </div>
+
+        <!-- Admin Tab 1: Form -->
+        <div id="admin-tab-create" class="space-y-6">
+          <form
+            id="post-form"
+            onsubmit="handlePublishPost(event)"
+            class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-6 space-y-6"
+          >
+            <input type="hidden" id="editing-post-id" value="" />
+
+            <div
+              class="flex items-center justify-between border-b border-zinc-800 pb-3"
+            >
+              <h3
+                id="form-title-heading"
+                class="text-sm font-semibold text-white"
+              >
+                Post Details
+              </h3>
+              <button
+                id="cancel-edit-btn"
+                type="button"
+                onclick="cancelEditPost()"
+                class="hidden text-xs text-zinc-400 hover:text-white"
+              >
+                Cancel Edit
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="sm:col-span-2 space-y-1">
+                <label
+                  class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider"
+                  >Title *</label
+                >
+                <input
+                  type="text"
+                  id="post-title"
+                  required
+                  placeholder="e.g. Alpine Sunrise"
+                  class="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 focus:outline-none focus:border-zinc-600 text-xs transition"
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label
+                  class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider"
+                  >Category *</label
+                >
+                <select
+                  id="post-category"
+                  required
+                  class="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 focus:outline-none focus:border-zinc-600 text-xs transition"
+                >
+                  <option value="Nature">Nature</option>
+                  <option value="Urban">Urban</option>
+                  <option value="Portrait">Portrait</option>
+                  <option value="Architecture">Architecture</option>
+                  <option value="Art">Art</option>
+                </select>
+              </div>
+
+              <div class="space-y-1">
+                <label
+                  class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider"
+                  >Date</label
+                >
+                <input
+                  type="date"
+                  id="post-date"
+                  class="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 focus:outline-none focus:border-zinc-600 text-xs transition"
+                />
+              </div>
+
+              <div class="sm:col-span-2 space-y-1">
+                <label
+                  class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider"
+                  >Description</label
+                >
+                <textarea
+                  id="post-desc"
+                  rows="3"
+                  placeholder="Short background story or shot location..."
+                  class="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 focus:outline-none focus:border-zinc-600 text-xs transition resize-none"
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- Upload Zone -->
+            <div class="space-y-3">
+              <label
+                class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider block"
+                >Photo Files *</label
+              >
+
+              <div
+                id="drop-zone"
+                onclick="document.getElementById('file-input').click()"
+                class="border border-dashed border-zinc-700 hover:border-zinc-500 bg-zinc-950 rounded-xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center space-y-2"
+              >
+                <i
+                  class="fa-solid fa-arrow-up-from-bracket text-zinc-400 text-lg"
+                ></i>
+                <p class="text-xs text-zinc-300">
+                  Click or drag & drop image files
+                </p>
+                <p class="text-[10px] text-zinc-500">
+                  JPG, PNG, WEBP supported
+                </p>
+                <input
+                  type="file"
+                  id="file-input"
+                  multiple
+                  accept="image/*"
+                  class="hidden"
+                  onchange="handleFileSelect(event)"
+                />
+              </div>
+
+              <!-- Queue -->
+              <div id="queue-container" class="space-y-2">
+                <div
+                  class="flex items-center justify-between text-xs text-zinc-400"
+                >
+                  <span>Queued Photos (<span id="queue-count">0</span>)</span>
+                  <button
+                    type="button"
+                    onclick="clearQueue()"
+                    class="text-rose-400 hover:text-rose-300"
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div
+                  id="queue-list"
+                  class="grid grid-cols-3 sm:grid-cols-6 gap-2"
+                ></div>
+              </div>
+            </div>
+
+            <div
+              class="flex justify-end space-x-2 pt-2 border-t border-zinc-800"
+            >
+              <button
+                type="button"
+                onclick="resetForm()"
+                class="px-4 py-2 border border-zinc-800 rounded-xl text-xs text-zinc-400 hover:text-white transition"
+              >
+                Reset
+              </button>
+              <button
+                type="submit"
+                id="submit-btn"
+                class="px-5 py-2 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs rounded-xl transition"
+              >
+                <span id="submit-btn-text">Publish Post</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Admin Tab 2: Manage List -->
+        <div id="admin-tab-manage" class="hidden">
+          <div
+            class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl overflow-hidden"
+          >
+            <div
+              class="p-4 border-b border-zinc-800 text-xs font-medium text-zinc-300"
+            >
+              Published Posts (<span id="admin-posts-count">0</span>)
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-zinc-300">
+                <thead
+                  class="bg-zinc-950 text-zinc-400 uppercase text-[10px] tracking-wider border-b border-zinc-800"
+                >
+                  <tr>
+                    <th class="px-4 py-3">Post</th>
+                    <th class="px-4 py-3">Category</th>
+                    <th class="px-4 py-3">Photos</th>
+                    <th class="px-4 py-3">Status</th>
+                    <th class="px-4 py-3">Date</th>
+                    <th class="px-4 py-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody
+                  id="admin-table-body"
+                  class="divide-y divide-zinc-800/60"
+                ></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER WITH COPYRIGHT NOTICE -->
+    <footer
+      class="border-t border-zinc-800/80 bg-zinc-950 py-6 text-center text-xs text-zinc-500 mt-auto"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3"
+      >
+        <p>© 2026 LUMINA Pro Photography Platform. All rights reserved.</p>
+        <div class="flex items-center space-x-4 text-[11px]">
+          <span class="hover:text-zinc-400 cursor-pointer">Privacy</span>
+          <span class="hover:text-zinc-400 cursor-pointer">Terms</span>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ==================== POST DETAIL MODAL ==================== -->
+    <div
+      id="post-modal"
+      class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-sm overflow-y-auto"
+    >
+      <div class="min-h-screen px-4 py-8 flex items-center justify-center">
+        <div
+          class="relative w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden space-y-6"
+        >
+          <button
+            onclick="closePostModal()"
+            class="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-zinc-950 text-zinc-400 hover:text-white flex items-center justify-center border border-zinc-800"
+          >
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+
+          <div class="p-6 sm:p-8 border-b border-zinc-800 space-y-3">
+            <div class="flex items-center gap-3 text-xs text-zinc-400">
+              <span
+                id="modal-category"
+                class="px-2.5 py-0.5 bg-zinc-800 text-zinc-200 rounded-md font-medium"
+                >Nature</span
+              >
+              <span id="modal-date">2026-10-21</span>
+              <span id="modal-views">124 views</span>
+            </div>
+            <h2 id="modal-title" class="text-2xl font-bold text-white">
+              Post Title
+            </h2>
+            <p
+              id="modal-desc"
+              class="text-zinc-400 text-sm leading-relaxed"
+            ></p>
+          </div>
+
+          <div class="p-6 sm:p-8 space-y-3">
+            <h3
+              class="text-xs font-semibold text-zinc-400 uppercase tracking-wider"
+            >
+              Photo Collection (<span id="modal-img-count">0</span>)
+            </h3>
+            <div
+              id="modal-gallery-grid"
+              class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FULLSCREEN LIGHTBOX OVERLAY -->
+    <div
+      id="lightbox"
+      class="fixed inset-0 z-50 hidden bg-black/95 flex flex-col justify-between p-4"
+    >
+      <div class="flex items-center justify-between">
+        <div class="text-zinc-400 text-xs font-medium">
+          <span id="lb-current-index">1</span> /
+          <span id="lb-total-count">1</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button
+            onclick="toggleZoom()"
+            class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-300 flex items-center justify-center border border-zinc-800"
+          >
+            <i
+              id="lb-zoom-icon"
+              class="fa-solid fa-magnifying-glass-plus text-xs"
+            ></i>
+          </button>
+          <button
+            onclick="copyCurrentImageLink()"
+            class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-300 flex items-center justify-center border border-zinc-800"
+          >
+            <i class="fa-regular fa-copy text-xs"></i>
+          </button>
+          <button
+            onclick="downloadCurrentImage()"
+            class="w-8 h-8 rounded-full bg-zinc-900 text-zinc-300 flex items-center justify-center border border-zinc-800"
+          >
+            <i class="fa-solid fa-download text-xs"></i>
+          </button>
+          <button
+            onclick="closeLightbox()"
+            class="w-8 h-8 rounded-full bg-rose-600 text-white flex items-center justify-center"
+          >
+            <i class="fa-solid fa-xmark text-xs"></i>
+          </button>
+        </div>
+      </div>
+
+      <div
+        class="relative flex-grow flex items-center justify-center my-4 overflow-hidden"
+      >
+        <button
+          onclick="prevLightboxImage()"
+          class="absolute left-2 z-10 w-10 h-10 rounded-full bg-zinc-900/80 text-white flex items-center justify-center border border-zinc-800"
+        >
+          <i class="fa-solid fa-chevron-left text-xs"></i>
+        </button>
+        <div
+          id="lb-img-wrapper"
+          class="max-w-full max-h-full flex items-center justify-center transition-transform duration-200"
+        >
+          <img
+            id="lb-image"
+            src=""
+            class="max-w-full max-h-[85vh] object-contain rounded-lg"
+          />
+        </div>
+        <button
+          onclick="nextLightboxImage()"
+          class="absolute right-2 z-10 w-10 h-10 rounded-full bg-zinc-900/80 text-white flex items-center justify-center border border-zinc-800"
+        >
+          <i class="fa-solid fa-chevron-right text-xs"></i>
+        </button>
+      </div>
+
+      <div class="text-center text-xs text-zinc-500">
+        LUMINA Photography Showcase
+      </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+      const SAMPLE_POSTS = [
+        {
+          id: "post-1",
+          title: "Majestic Alpine Sunrise",
+          category: "Nature",
+          date: "2026-10-18",
+          description:
+            "Golden morning sunlight spreading over snow-capped mountain peaks.",
+          views: 342,
+          isPublic: true,
+          images: [
+            {
+              id: "img-11",
+              url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2000",
+            },
+            {
+              id: "img-12",
+              url: "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=2000",
+            },
+            {
+              id: "img-13",
+              url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2000",
+            },
+          ],
+        },
+        {
+          id: "post-2",
+          title: "Illuminated Metropolis",
+          category: "Urban",
+          date: "2026-10-19",
+          description:
+            "Long-exposure night perspectives showcasing vibrant city traffic and architecture.",
+          views: 512,
+          isPublic: true,
+          images: [
+            {
+              id: "img-21",
+              url: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=2000",
+            },
+            {
+              id: "img-22",
+              url: "https://images.unsplash.com/photo-1477959858617-67f30ac4ce78?q=80&w=2000",
+            },
+          ],
+        },
+        {
+          id: "post-3",
+          title: "Studio Lighting & Expression",
+          category: "Portrait",
+          date: "2026-10-20",
+          description:
+            "Professional studio lighting techniques emphasizing genuine character.",
+          views: 289,
+          isPublic: true,
+          images: [
+            {
+              id: "img-31",
+              url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=2000",
+            },
+            {
+              id: "img-32",
+              url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=2000",
+            },
+          ],
+        },
+        {
+          id: "post-4",
+          title: "Minimalist Modern Geometry",
+          category: "Architecture",
+          date: "2026-10-21",
+          description:
+            "Sharp structural lines and interplay of light across contemporary facades.",
+          views: 198,
+          isPublic: true,
+          images: [
+            {
+              id: "img-41",
+              url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2000",
+            },
+          ],
+        },
+      ];
+
+      const ADMIN_CREDENTIALS = { username: "admin", password: "admin123" };
+
+      let posts = [];
+      let isAdminLoggedIn = false;
+      let uploadQueue = [];
+      let selectedCategoryFilter = "ALL";
+
+      let currentLightboxGallery = [];
+      let currentLightboxIndex = 0;
+      let isZoomed = false;
+
+      function initApp() {
+        const savedPosts = localStorage.getItem("lumina_posts");
+        if (savedPosts) {
+          try {
+            posts = JSON.parse(savedPosts);
+          } catch (e) {
+            posts = [...SAMPLE_POSTS];
+          }
+        } else {
+          posts = [...SAMPLE_POSTS];
+          savePostsToStorage();
+        }
+
+        if (localStorage.getItem("lumina_admin_auth") === "true") {
+          isAdminLoggedIn = true;
+        }
+
+        const dateInput = document.getElementById("post-date");
+        if (dateInput) dateInput.value = new Date().toISOString().split("T")[0];
+
+        setupDragAndDrop();
+
+        // Handle URL Hash routing
+        handleRouting();
+        window.addEventListener("hashchange", handleRouting);
+      }
+
+      function savePostsToStorage() {
+        localStorage.setItem("lumina_posts", JSON.stringify(posts));
+      }
+
+      // ==========================================
+      // ROUTING SYSTEM (URL HASH SUPPORT)
+      // Supports /admin or #admin, /post/123 or #post-123
+      // ==========================================
+      function navigateTo(route) {
+        window.location.hash = route;
+      }
+
+      function handleRouting() {
+        let hash = window.location.hash.replace("#", "").replace(/^\//, "");
+        const viewerSec = document.getElementById("site-viewer");
+        const adminSec = document.getElementById("site-admin");
+        const adminLoginSec = document.getElementById("admin-login-section");
+        const logoutBtn = document.getElementById("btn-logout");
+
+        document.getElementById("post-modal").classList.add("hidden");
+        document.body.style.overflow = "";
+
+        if (hash === "admin") {
+          viewerSec.classList.add("hidden");
+
+          if (!isAdminLoggedIn) {
+            adminSec.classList.add("hidden");
+            adminLoginSec.classList.remove("hidden");
+            logoutBtn.classList.add("hidden");
+          } else {
+            adminLoginSec.classList.add("hidden");
+            adminSec.classList.remove("hidden");
+            logoutBtn.classList.remove("hidden");
+            renderAdminTable();
+          }
+        } else if (hash.startsWith("post-") || hash.startsWith("post/")) {
+          const postId = hash.replace("post/", "post-");
+          viewerSec.classList.remove("hidden");
+          adminSec.classList.add("hidden");
+          adminLoginSec.classList.add("hidden");
+          logoutBtn.classList.add("hidden");
+
+          renderViewerPosts();
+          openPostModal(postId, false);
+        } else {
+          viewerSec.classList.remove("hidden");
+          adminSec.classList.add("hidden");
+          adminLoginSec.classList.add("hidden");
+          logoutBtn.classList.add("hidden");
+
+          renderViewerPosts();
+        }
+      }
+
+      function toggleFilterBar() {
+        const bar = document.getElementById("filter-bar");
+        bar.classList.toggle("hidden");
+      }
+
+      // AUTHENTICATION
+      function handleAdminLogin(e) {
+        e.preventDefault();
+        const userIn = document.getElementById("admin-username").value.trim();
+        const passIn = document.getElementById("admin-password").value.trim();
+
+        if (
+          userIn === ADMIN_CREDENTIALS.username &&
+          passIn === ADMIN_CREDENTIALS.password
+        ) {
+          isAdminLoggedIn = true;
+          localStorage.setItem("lumina_admin_auth", "true");
+          document.getElementById("login-error").classList.add("hidden");
+          showToast("Admin authenticated!");
+          handleRouting();
+        } else {
+          document.getElementById("login-error").classList.remove("hidden");
+        }
+      }
+
+      function handleLogout() {
+        isAdminLoggedIn = false;
+        localStorage.removeItem("lumina_admin_auth");
+        showToast("Logged out!");
+        navigateTo("");
+      }
+
+      // VIEWER FUNCTIONS
+      function renderCategoryPills() {
+        const categories = [
+          "ALL",
+          "Nature",
+          "Urban",
+          "Portrait",
+          "Architecture",
+          "Art",
+        ];
+        const pillsContainer = document.getElementById("category-pills");
+        pillsContainer.innerHTML = categories
+          .map((cat) => {
+            const isActive = selectedCategoryFilter === cat;
+            const activeClass = isActive
+              ? "bg-zinc-100 text-zinc-950 font-semibold"
+              : "bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-zinc-200";
+            return `<button onclick="filterCategory('${cat}')" class="px-3 py-1 rounded-lg text-xs transition ${activeClass}">
+                    ${cat === "ALL" ? "All" : cat}
+                </button>`;
+          })
+          .join("");
+      }
+
+      function filterCategory(cat) {
+        selectedCategoryFilter = cat;
+        document.getElementById("viewer-category-select").value = cat;
+        renderCategoryPills();
+        renderViewerPosts();
+      }
+
+      function renderViewerPosts() {
+        const container = document.getElementById("viewer-posts-container");
+        const emptyState = document.getElementById("viewer-empty-state");
+        const searchKeyword = (
+          document.getElementById("viewer-search-input").value || ""
+        )
+          .toLowerCase()
+          .trim();
+        const selectedCat = document.getElementById(
+          "viewer-category-select",
+        ).value;
+
+        selectedCategoryFilter = selectedCat;
+        renderCategoryPills();
+
+        let filtered = posts.filter((p) => p.isPublic !== false);
+        if (selectedCat !== "ALL")
+          filtered = filtered.filter((p) => p.category === selectedCat);
+        if (searchKeyword) {
+          filtered = filtered.filter(
+            (p) =>
+              p.title.toLowerCase().includes(searchKeyword) ||
+              p.description.toLowerCase().includes(searchKeyword) ||
+              p.category.toLowerCase().includes(searchKeyword),
+          );
+        }
+
+        if (filtered.length === 0) {
+          container.innerHTML = "";
+          emptyState.classList.remove("hidden");
+          return;
+        }
+
+        emptyState.classList.add("hidden");
+        container.innerHTML = filtered
+          .map((post) => {
+            const coverImg =
+              post.images && post.images.length > 0
+                ? post.images[0].url
+                : "https://placehold.co/800x600/121215/ffffff?text=No+Image";
+            const imgCount = post.images ? post.images.length : 0;
+
+            return `
+            <div onclick="navigateTo('post-${post.id.replace("post-", "")}')" class="masonry-item group bg-zinc-900/40 border border-zinc-800/80 rounded-2xl overflow-hidden cursor-pointer hover:border-zinc-700 transition">
+              <div class="relative overflow-hidden bg-zinc-950">
+                <img src="${coverImg}" alt="${post.title}" class="w-full h-auto object-cover group-hover:scale-105 transition duration-500" loading="lazy">
+                <div class="absolute top-2.5 left-2.5">
+                  <span class="px-2 py-0.5 bg-zinc-950/80 backdrop-blur-md text-zinc-300 text-[10px] font-medium rounded-md border border-zinc-800">
+                    ${post.category}
+                  </span>
+                </div>
+                <div class="absolute top-2.5 right-2.5 bg-zinc-950/80 backdrop-blur-md text-zinc-300 text-[10px] px-2 py-0.5 rounded-md border border-zinc-800 flex items-center gap-1">
+                  <i class="fa-regular fa-images text-zinc-400"></i>
+                  <span>${imgCount}</span>
+                </div>
+              </div>
+              <div class="p-4 space-y-1.5">
+                <h3 class="text-sm font-semibold text-zinc-100 group-hover:text-white transition line-clamp-1">${post.title}</h3>
+                <p class="text-xs text-zinc-400 line-clamp-2">${post.description || "No description."}</p>
+                <div class="pt-2 border-t border-zinc-800/60 flex items-center justify-between text-[11px] text-zinc-500">
+                  <span>${post.date}</span>
+                  <span>${post.views || 0} views</span>
+                </div>
+              </div>
+            </div>
+          `;
+          })
+          .join("");
+      }
+
+      // MODAL & LIGHTBOX
+      function openPostModal(postId, updateHash = true) {
+        const post = posts.find(
+          (p) =>
+            p.id === postId || p.id === `post-${postId.replace("post-", "")}`,
+        );
+        if (!post) return;
+
+        if (updateHash) {
+          navigateTo(`post-${post.id.replace("post-", "")}`);
+          return;
+        }
+
+        post.views = (post.views || 0) + 1;
+        savePostsToStorage();
+
+        document.getElementById("modal-title").innerText = post.title;
+        document.getElementById("modal-category").innerText = post.category;
+        document.getElementById("modal-date").innerText = post.date;
+        document.getElementById("modal-views").innerText =
+          `${post.views} views`;
+        document.getElementById("modal-desc").innerText =
+          post.description || "No description.";
+        document.getElementById("modal-img-count").innerText = post.images
+          ? post.images.length
+          : 0;
+
+        const modalGallery = document.getElementById("modal-gallery-grid");
+        if (post.images && post.images.length > 0) {
+          modalGallery.innerHTML = post.images
+            .map(
+              (img, index) => `
+            <div onclick="openLightbox('${post.id}', ${index})" class="group relative rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800 aspect-square cursor-pointer hover:border-zinc-600 transition">
+              <img src="${img.url}" class="w-full h-full object-cover">
+            </div>
+          `,
+            )
+            .join("");
+        } else {
+          modalGallery.innerHTML = `<p class="text-zinc-500 text-xs col-span-full">No images available.</p>`;
+        }
+
+        document.getElementById("post-modal").classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closePostModal() {
+        document.getElementById("post-modal").classList.add("hidden");
+        document.body.style.overflow = "";
+        navigateTo("");
+      }
+
+      function openLightbox(postId, index) {
+        const post = posts.find((p) => p.id === postId);
+        if (!post || !post.images) return;
+
+        currentLightboxGallery = post.images;
+        currentLightboxIndex = index;
+        updateLightboxContent();
+        document.getElementById("lightbox").classList.remove("hidden");
+      }
+
+      function updateLightboxContent() {
+        const imgData = currentLightboxGallery[currentLightboxIndex];
+        if (!imgData) return;
+        document.getElementById("lb-image").src = imgData.url;
+        document.getElementById("lb-current-index").innerText =
+          currentLightboxIndex + 1;
+        document.getElementById("lb-total-count").innerText =
+          currentLightboxGallery.length;
+        isZoomed = false;
+        applyZoomState();
+      }
+
+      function closeLightbox() {
+        document.getElementById("lightbox").classList.add("hidden");
+      }
+      function prevLightboxImage() {
+        if (currentLightboxGallery.length) {
+          currentLightboxIndex =
+            (currentLightboxIndex - 1 + currentLightboxGallery.length) %
+            currentLightboxGallery.length;
+          updateLightboxContent();
+        }
+      }
+      function nextLightboxImage() {
+        if (currentLightboxGallery.length) {
+          currentLightboxIndex =
+            (currentLightboxIndex + 1) % currentLightboxGallery.length;
+          updateLightboxContent();
+        }
+      }
+      function toggleZoom() {
+        isZoomed = !isZoomed;
+        applyZoomState();
+      }
+      function applyZoomState() {
+        const wrapper = document.getElementById("lb-img-wrapper");
+        if (isZoomed) wrapper.classList.add("scale-150");
+        else wrapper.classList.remove("scale-150");
+      }
+
+      function copyCurrentImageLink() {
+        const imgData = currentLightboxGallery[currentLightboxIndex];
+        if (!imgData) return;
+        navigator.clipboard.writeText(imgData.url);
+        showToast("Image link copied!");
+      }
+
+      function downloadCurrentImage() {
+        const imgData = currentLightboxGallery[currentLightboxIndex];
+        if (!imgData) return;
+        const a = document.createElement("a");
+        a.href = imgData.url;
+        a.download = "photo.jpg";
+        a.target = "_blank";
+        a.click();
+        showToast("Downloading photo...");
+      }
+
+      // ADMIN TAB & UPLOAD LOGIC
+      function setAdminTab(tab) {
+        const btnCreate = document.getElementById("tab-btn-create");
+        const btnManage = document.getElementById("tab-btn-manage");
+        const secCreate = document.getElementById("admin-tab-create");
+        const secManage = document.getElementById("admin-tab-manage");
+
+        if (tab === "create") {
+          secCreate.classList.remove("hidden");
+          secManage.classList.add("hidden");
+          btnCreate.className =
+            "px-3.5 py-2 rounded-xl text-xs font-semibold transition bg-zinc-100 text-zinc-950";
+          btnManage.className =
+            "px-3.5 py-2 rounded-xl text-xs font-semibold transition bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white";
+        } else {
+          secManage.classList.remove("hidden");
+          secCreate.classList.add("hidden");
+          btnManage.className =
+            "px-3.5 py-2 rounded-xl text-xs font-semibold transition bg-zinc-100 text-zinc-950";
+          btnCreate.className =
+            "px-3.5 py-2 rounded-xl text-xs font-semibold transition bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white";
+          renderAdminTable();
+        }
+      }
+
+      function setupDragAndDrop() {
+        const dropZone = document.getElementById("drop-zone");
+        if (!dropZone) return;
+
+        ["dragenter", "dragover", "dragleave", "drop"].forEach((eName) => {
+          dropZone.addEventListener(eName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          });
+        });
+
+        dropZone.addEventListener("drop", (e) => {
+          processSelectedFiles(e.dataTransfer.files);
+        });
+      }
+
+      function handleFileSelect(event) {
+        processSelectedFiles(event.target.files);
+      }
+
+      function processSelectedFiles(files) {
+        if (!files || files.length === 0) return;
+        Array.from(files).forEach((file) => {
+          if (!file.type.startsWith("image/")) return;
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            uploadQueue.push({
+              id:
+                "queue-" +
+                Date.now() +
+                "-" +
+                Math.random().toString(36).substr(2, 4),
+              url: e.target.result,
+            });
+            renderQueue();
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function renderQueue() {
+        const queueList = document.getElementById("queue-list");
+        document.getElementById("queue-count").innerText = uploadQueue.length;
+
+        if (uploadQueue.length === 0) {
+          queueList.innerHTML = `<p class="text-xs text-zinc-500 italic col-span-full">No photos queued.</p>`;
+          return;
+        }
+
+        queueList.innerHTML = uploadQueue
+          .map(
+            (item, idx) => `
+          <div class="relative group aspect-square rounded-lg overflow-hidden bg-zinc-950 border border-zinc-800">
+            <img src="${item.url}" class="w-full h-full object-cover">
+            <button type="button" onclick="removeFromQueue(${idx})" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-[10px]">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        `,
+          )
+          .join("");
+      }
+
+      function removeFromQueue(index) {
+        uploadQueue.splice(index, 1);
+        renderQueue();
+      }
+      function clearQueue() {
+        uploadQueue = [];
+        renderQueue();
+        document.getElementById("file-input").value = "";
+      }
+
+      function handlePublishPost(e) {
+        e.preventDefault();
+        if (!isAdminLoggedIn) return;
+
+        const editingId = document.getElementById("editing-post-id").value;
+        const title = document.getElementById("post-title").value.trim();
+        const category = document.getElementById("post-category").value;
+        const date =
+          document.getElementById("post-date").value ||
+          new Date().toISOString().split("T")[0];
+        const desc = document.getElementById("post-desc").value.trim();
+
+        if (!title || uploadQueue.length === 0) {
+          showToast("Please complete title and photos!", "error");
+          return;
+        }
+
+        if (editingId) {
+          const targetPost = posts.find((p) => p.id === editingId);
+          if (targetPost) {
+            targetPost.title = title;
+            targetPost.category = category;
+            targetPost.date = date;
+            targetPost.description = desc;
+            targetPost.images = uploadQueue.map((item) => ({
+              id: item.id || "img-" + Date.now(),
+              url: item.url,
+            }));
+          }
+          showToast("Post updated!");
+        } else {
+          posts.unshift({
+            id: "post-" + Date.now(),
+            title,
+            category,
+            date,
+            description: desc,
+            views: 0,
+            isPublic: true,
+            images: uploadQueue.map((item) => ({
+              id: "img-" + Date.now(),
+              url: item.url,
+            })),
+          });
+          showToast("New post published!");
+        }
+
+        savePostsToStorage();
+        resetForm();
+        setAdminTab("manage");
+      }
+
+      function editPost(postId) {
+        const post = posts.find((p) => p.id === postId);
+        if (!post) return;
+
+        document.getElementById("editing-post-id").value = post.id;
+        document.getElementById("post-title").value = post.title;
+        document.getElementById("post-category").value = post.category;
+        document.getElementById("post-date").value = post.date;
+        document.getElementById("post-desc").value = post.description || "";
+
+        uploadQueue = post.images ? post.images.map((img) => ({ ...img })) : [];
+        renderQueue();
+
+        document.getElementById("form-title-heading").innerText = "Edit Post";
+        document.getElementById("submit-btn-text").innerText = "Save Changes";
+        document.getElementById("cancel-edit-btn").classList.remove("hidden");
+
+        setAdminTab("create");
+      }
+
+      function cancelEditPost() {
+        resetForm();
+      }
+
+      function resetForm() {
+        document.getElementById("post-form").reset();
+        document.getElementById("editing-post-id").value = "";
+        document.getElementById("form-title-heading").innerText =
+          "Post Details";
+        document.getElementById("submit-btn-text").innerText = "Publish Post";
+        document.getElementById("cancel-edit-btn").classList.add("hidden");
+        clearQueue();
+      }
+
+      function renderAdminTable() {
+        const tbody = document.getElementById("admin-table-body");
+        document.getElementById("admin-posts-count").innerText = posts.length;
+
+        if (posts.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-6 text-center text-zinc-500 italic">No posts found.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = posts
+          .map((post) => {
+            const cover =
+              post.images && post.images.length > 0
+                ? post.images[0].url
+                : "https://placehold.co/100x100/121215/ffffff?text=No+Img";
+            return `
+            <tr class="hover:bg-zinc-900/40 transition">
+              <td class="px-4 py-3 flex items-center space-x-3">
+                <img src="${cover}" class="w-10 h-10 object-cover rounded-lg bg-zinc-950 border border-zinc-800">
+                <span class="font-medium text-zinc-200 line-clamp-1">${post.title}</span>
+              </td>
+              <td class="px-4 py-3 text-zinc-400">${post.category}</td>
+              <td class="px-4 py-3 text-zinc-300 font-semibold">${post.images ? post.images.length : 0}</td>
+              <td class="px-4 py-3">${post.isPublic !== false ? '<span class="text-emerald-400">Public</span>' : '<span class="text-zinc-500">Hidden</span>'}</td>
+              <td class="px-4 py-3 text-zinc-500">${post.date}</td>
+              <td class="px-4 py-3 text-right space-x-1">
+                <button onclick="editPost('${post.id}')" class="p-1.5 rounded hover:bg-zinc-800 text-zinc-400 hover:text-white"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button onclick="deletePost('${post.id}')" class="p-1.5 rounded hover:bg-rose-500/20 text-rose-400"><i class="fa-regular fa-trash-can"></i></button>
+              </td>
+            </tr>
+          `;
+          })
+          .join("");
+      }
+
+      function deletePost(postId) {
+        if (!confirm("Delete this post permanently?")) return;
+        posts = posts.filter((p) => p.id !== postId);
+        savePostsToStorage();
+        renderAdminTable();
+        showToast("Post deleted.");
+      }
+
+      function showToast(message, type = "success") {
+        const container = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        toast.className = `pointer-events-auto px-4 py-2.5 rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-100 text-xs shadow-xl flex items-center gap-2 transform transition duration-300 translate-y-2 opacity-0`;
+        toast.innerHTML = `<i class="fa-solid ${type === "error" ? "fa-circle-exclamation text-rose-400" : "fa-circle-check text-emerald-400"}"></i><span>${message}</span>`;
+        container.appendChild(toast);
+
+        setTimeout(
+          () => toast.classList.remove("translate-y-2", "opacity-0"),
+          10,
+        );
+        setTimeout(() => {
+          toast.classList.add("opacity-0", "-translate-y-2");
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
+
+      window.onload = function () {
+        initApp();
+      };
+    </script>
+  </body>
+</html>
