@@ -758,9 +758,9 @@
 
         setupDragAndDrop();
 
-        // Handle URL Hash routing
+        // Handle HTML5 History API routing (No Hash)
         handleRouting();
-        window.addEventListener("hashchange", handleRouting);
+        window.addEventListener("popstate", handleRouting);
       }
 
       function savePostsToStorage() {
@@ -768,15 +768,16 @@
       }
 
       // ==========================================
-      // ROUTING SYSTEM (URL HASH SUPPORT)
-      // Supports /admin or #admin, /post/123 or #post-123
+      // ROUTING SYSTEM (HTML5 HISTORY API - NO HASH)
       // ==========================================
       function navigateTo(route) {
-        window.location.hash = route;
+        const path = route ? `/${route}` : `/`;
+        window.history.pushState({}, "", path);
+        handleRouting();
       }
 
       function handleRouting() {
-        let hash = window.location.hash.replace("#", "").replace(/^\//, "");
+        let path = window.location.pathname.replace(/^\//, "");
         const viewerSec = document.getElementById("site-viewer");
         const adminSec = document.getElementById("site-admin");
         const adminLoginSec = document.getElementById("admin-login-section");
@@ -785,7 +786,7 @@
         document.getElementById("post-modal").classList.add("hidden");
         document.body.style.overflow = "";
 
-        if (hash === "admin") {
+        if (path === "admin") {
           viewerSec.classList.add("hidden");
 
           if (!isAdminLoggedIn) {
@@ -798,8 +799,8 @@
             logoutBtn.classList.remove("hidden");
             renderAdminTable();
           }
-        } else if (hash.startsWith("post-") || hash.startsWith("post/")) {
-          const postId = hash.replace("post/", "post-");
+        } else if (path.startsWith("post-") || path.startsWith("post/")) {
+          const postId = path.replace("post/", "post-");
           viewerSec.classList.remove("hidden");
           adminSec.classList.add("hidden");
           adminLoginSec.classList.add("hidden");
