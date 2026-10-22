@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lumina — Photography Portfolio</title>
+    <title>LUMINA — Fine Art Photography Portfolio</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -12,9 +12,9 @@
         theme: {
           extend: {
             colors: {
-              neutralbg: "#09090b",
-              cardbg: "#121215",
-              cardborder: "#27272a",
+              cinematicbg: "#08080a",
+              cinematiccard: "#121216",
+              cinematicborder: "#1f1f26",
             },
             fontFamily: {
               sans: [
@@ -41,7 +41,7 @@
     <style>
       body {
         font-family: "Inter", sans-serif;
-        background-color: #09090b;
+        background-color: #08080a;
         color: #f4f4f5;
       }
       ::-webkit-scrollbar {
@@ -49,7 +49,7 @@
         height: 6px;
       }
       ::-webkit-scrollbar-track {
-        background: #09090b;
+        background: #08080a;
       }
       ::-webkit-scrollbar-thumb {
         background: #27272a;
@@ -60,7 +60,7 @@
       }
       .masonry-grid {
         column-count: 1;
-        column-gap: 1.25rem;
+        column-gap: 1.5rem;
       }
       @media (min-width: 640px) {
         .masonry-grid {
@@ -79,16 +79,22 @@
       }
       .masonry-item {
         break-inside: avoid;
-        margin-bottom: 1.25rem;
+        margin-bottom: 1.5rem;
+      }
+      .glass-panel {
+        background: rgba(18, 18, 22, 0.75);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
       }
     </style>
   </head>
   <body
     class="min-h-screen flex flex-col antialiased selection:bg-zinc-800 selection:text-white"
   >
-    <!-- TOP NAVBAR (Clean, no visible admin link) -->
+    <!-- TOP NAVBAR -->
     <header
-      class="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800/80"
+      class="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-900/80"
     >
       <div
         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between"
@@ -100,34 +106,40 @@
             navigateTo('');
             return false;
           "
-          class="flex items-center space-x-2.5 group"
+          class="flex items-center space-x-3 group"
         >
           <div
-            class="w-8 h-8 rounded-lg bg-zinc-100 text-zinc-950 flex items-center justify-center font-bold transition group-hover:bg-white"
+            class="w-9 h-9 rounded-xl bg-zinc-100 text-zinc-950 flex items-center justify-center font-bold transition group-hover:bg-white shadow-lg shadow-white/5"
           >
             <i class="fa-solid fa-camera text-sm"></i>
           </div>
-          <span
-            class="text-lg font-semibold tracking-tight text-white group-hover:text-zinc-200 transition"
-            >LUMINA</span
-          >
+          <div>
+            <span
+              class="text-lg font-bold tracking-tight text-white group-hover:text-zinc-200 transition"
+              >LUMINA</span
+            >
+            <span
+              class="text-[10px] text-zinc-400 font-medium block -mt-1 tracking-widest uppercase"
+              >Portfolio</span
+            >
+          </div>
         </a>
 
-        <!-- Right Header Actions -->
+        <!-- Header Actions -->
         <div class="flex items-center space-x-3">
           <button
             onclick="toggleFilterBar()"
-            class="px-3 py-1.5 rounded-lg border border-zinc-800 hover:border-zinc-700 bg-zinc-900 text-xs font-medium text-zinc-300 hover:text-white transition flex items-center gap-1.5"
+            class="px-3.5 py-1.5 rounded-xl border border-zinc-800/80 hover:border-zinc-700 bg-zinc-900/80 text-xs font-medium text-zinc-300 hover:text-white transition flex items-center gap-2"
           >
             <i class="fa-solid fa-sliders text-xs"></i>
             <span>Filter</span>
           </button>
 
-          <!-- Admin Logout Button (Only visible if admin logged in and on admin page) -->
+          <!-- Admin Logout Button (Chỉ hiện khi ở trang admin) -->
           <button
             id="btn-logout"
             onclick="handleLogout()"
-            class="hidden px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-medium transition flex items-center gap-1.5"
+            class="hidden px-3.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-medium transition flex items-center gap-1.5"
           >
             <i class="fa-solid fa-right-from-bracket"></i>
             <span>Logout</span>
@@ -145,42 +157,60 @@
     <!-- MAIN CONTENT CONTAINER -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- ==================== VIEWER SITE ==================== -->
-      <section id="site-viewer" class="space-y-8">
-        <!-- Minimal Hero Header -->
-        <div class="max-w-2xl py-4 space-y-3">
-          <h1
-            class="text-3xl sm:text-4xl font-semibold tracking-tight text-white"
-          >
-            Selected Works & Photography
-          </h1>
-          <p class="text-zinc-400 text-sm leading-relaxed">
-            A minimalist visual log celebrating fine art, landscape,
-            architecture, and portraiture photography.
-          </p>
+      <section id="site-viewer" class="space-y-10">
+        <!-- Cinematic Hero Header -->
+        <div
+          class="relative rounded-3xl overflow-hidden border border-zinc-800/80 bg-zinc-950 p-8 sm:p-14 text-center space-y-4 shadow-2xl"
+        >
+          <div
+            class="absolute inset-0 bg-cover bg-center opacity-15 filter blur-sm scale-105"
+            style="
+              background-image: url(&quot;https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2000&quot;);
+            "
+          ></div>
+          <div
+            class="absolute inset-0 bg-gradient-to-b from-transparent via-zinc-950/80 to-zinc-950"
+          ></div>
+
+          <div class="relative z-10 max-w-2xl mx-auto space-y-3">
+            <span
+              class="px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-zinc-400 bg-zinc-900/80 rounded-full border border-zinc-800"
+              >Editorial Photography</span
+            >
+            <h1
+              class="text-3xl sm:text-5xl font-bold tracking-tight text-white leading-tight"
+            >
+              Capturing Light & Silence
+            </h1>
+            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+              A curated visual exhibition celebrating high-definition landscape,
+              fine art, architecture, and portrait photography.
+            </p>
+          </div>
         </div>
 
-        <!-- Filter & Search Bar (Toggleable / Clean) -->
+        <!-- Floating Filter & Search Bar -->
         <div
           id="filter-bar"
-          class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4 space-y-4"
+          class="glass-panel rounded-2xl p-4 space-y-4 shadow-xl transition-all"
         >
           <div class="flex flex-col sm:flex-row gap-3">
             <div class="relative flex-grow">
               <i
-                class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"
+                class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"
               ></i>
               <input
                 type="text"
                 id="viewer-search-input"
                 oninput="renderViewerPosts()"
-                placeholder="Search collection..."
-                class="w-full pl-9 pr-4 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-600 text-xs transition"
+                placeholder="Search series, topics..."
+                class="w-full pl-10 pr-4 py-2.5 bg-zinc-950/80 border border-zinc-800 rounded-xl text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-600 text-xs transition"
               />
             </div>
             <select
               id="viewer-category-select"
               onchange="renderViewerPosts()"
-              class="px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 text-xs focus:outline-none focus:border-zinc-600 transition"
+              class="px-4 py-2.5 bg-zinc-950/80 border border-zinc-800 rounded-xl text-zinc-200 text-xs focus:outline-none focus:border-zinc-600 transition"
             >
               <option value="ALL">All Categories</option>
               <option value="Nature">Nature</option>
@@ -221,7 +251,7 @@
         class="hidden py-16 flex items-center justify-center min-h-[50vh]"
       >
         <div
-          class="w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 space-y-6"
+          class="w-full max-w-sm bg-zinc-900 border border-zinc-800/80 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl"
         >
           <div class="space-y-1">
             <h2 class="text-xl font-semibold text-white">
@@ -281,7 +311,7 @@
       <!-- ==================== ADMIN DASHBOARD SECTION ==================== -->
       <section id="site-admin" class="hidden space-y-8">
         <div
-          class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800 pb-4"
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-4"
         >
           <div>
             <h2 class="text-2xl font-semibold text-white">Admin Dashboard</h2>
@@ -524,7 +554,7 @@
     >
       <div class="min-h-screen px-4 py-8 flex items-center justify-center">
         <div
-          class="relative w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden space-y-6"
+          class="relative w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden space-y-6 shadow-2xl"
         >
           <button
             onclick="closePostModal()"
@@ -570,7 +600,7 @@
     <!-- FULLSCREEN LIGHTBOX OVERLAY -->
     <div
       id="lightbox"
-      class="fixed inset-0 z-50 hidden bg-black/95 flex flex-col justify-between p-4"
+      class="fixed inset-0 z-50 hidden bg-black/95 flex flex-col justify-between p-4 select-none"
     >
       <div class="flex items-center justify-between">
         <div class="text-zinc-400 text-xs font-medium">
@@ -624,7 +654,7 @@
           <img
             id="lb-image"
             src=""
-            class="max-w-full max-h-[85vh] object-contain rounded-lg"
+            class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
           />
         </div>
         <button
@@ -636,7 +666,7 @@
       </div>
 
       <div class="text-center text-xs text-zinc-500">
-        LUMINA Photography Showcase
+        LUMINA Fine Art Photography
       </div>
     </div>
 
@@ -758,7 +788,7 @@
 
         setupDragAndDrop();
 
-        // Handle HTML5 History API routing (No Hash)
+        // Handle HTML5 History API routing
         handleRouting();
         window.addEventListener("popstate", handleRouting);
       }
@@ -768,7 +798,7 @@
       }
 
       // ==========================================
-      // ROUTING SYSTEM (HTML5 HISTORY API - NO HASH)
+      // ROUTING SYSTEM (HTML5 HISTORY API)
       // ==========================================
       function navigateTo(route) {
         const path = route ? `/${route}` : `/`;
@@ -865,10 +895,10 @@
           .map((cat) => {
             const isActive = selectedCategoryFilter === cat;
             const activeClass = isActive
-              ? "bg-zinc-100 text-zinc-950 font-semibold"
+              ? "bg-zinc-100 text-zinc-950 font-semibold shadow-md"
               : "bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-zinc-200";
-            return `<button onclick="filterCategory('${cat}')" class="px-3 py-1 rounded-lg text-xs transition ${activeClass}">
-                    ${cat === "ALL" ? "All" : cat}
+            return `<button onclick="filterCategory('${cat}')" class="px-3.5 py-1.5 rounded-xl text-xs transition ${activeClass}">
+                    ${cat === "ALL" ? "All Categories" : cat}
                 </button>`;
           })
           .join("");
@@ -924,15 +954,15 @@
             const imgCount = post.images ? post.images.length : 0;
 
             return `
-            <div onclick="navigateTo('post-${post.id.replace("post-", "")}')" class="masonry-item group bg-zinc-900/40 border border-zinc-800/80 rounded-2xl overflow-hidden cursor-pointer hover:border-zinc-700 transition">
+            <div onclick="navigateTo('post-${post.id.replace("post-", "")}')" class="masonry-item group bg-zinc-900/40 border border-zinc-800/80 rounded-2xl overflow-hidden cursor-pointer hover:border-zinc-700 transition duration-300 hover:-translate-y-1 shadow-lg">
               <div class="relative overflow-hidden bg-zinc-950">
                 <img src="${coverImg}" alt="${post.title}" class="w-full h-auto object-cover group-hover:scale-105 transition duration-500" loading="lazy">
-                <div class="absolute top-2.5 left-2.5">
-                  <span class="px-2 py-0.5 bg-zinc-950/80 backdrop-blur-md text-zinc-300 text-[10px] font-medium rounded-md border border-zinc-800">
+                <div class="absolute top-3 left-3">
+                  <span class="px-2.5 py-1 bg-zinc-950/80 backdrop-blur-md text-zinc-300 text-[10px] font-medium rounded-lg border border-zinc-800">
                     ${post.category}
                   </span>
                 </div>
-                <div class="absolute top-2.5 right-2.5 bg-zinc-950/80 backdrop-blur-md text-zinc-300 text-[10px] px-2 py-0.5 rounded-md border border-zinc-800 flex items-center gap-1">
+                <div class="absolute top-3 right-3 bg-zinc-950/80 backdrop-blur-md text-zinc-300 text-[10px] px-2.5 py-1 rounded-lg border border-zinc-800 flex items-center gap-1.5">
                   <i class="fa-regular fa-images text-zinc-400"></i>
                   <span>${imgCount}</span>
                 </div>
