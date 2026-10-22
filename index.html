@@ -36,6 +36,7 @@
     />
     <!-- Firebase SDK Compat Scripts -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <style>
       :root {
@@ -629,10 +630,11 @@
                 >Username</label
               >
               <input
-                type="text"
                 id="admin-username"
+                type="email"
+                autocomplete="username"
+                placeholder="Admin email"
                 required
-                placeholder="admin"
                 class="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 focus:outline-none focus:border-zinc-600 text-xs transition"
               />
             </div>
@@ -1044,6 +1046,7 @@
 
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
       const db = firebase.firestore();
 
       const SAMPLE_POSTS = [
@@ -1284,21 +1287,19 @@
         bar.classList.toggle("hidden");
       }
 
-      function handleAdminLogin(e) {
+      async function handleAdminLogin(e) {
         e.preventDefault();
-        const userIn = document.getElementById("admin-username").value.trim();
-        const passIn = document.getElementById("admin-password").value.trim();
 
-        if (
-          userIn === ADMIN_CREDENTIALS.username &&
-          passIn === ADMIN_CREDENTIALS.password
-        ) {
+        const email = document.getElementById("admin-username").value.trim();
+        const password = document.getElementById("admin-password").value;
+
+        try {
+          await auth.signInWithEmailAndPassword(email, password);
           isAdminLoggedIn = true;
-          localStorage.setItem("lumina_admin_auth", "true");
           document.getElementById("login-error").classList.add("hidden");
-          showToast("Admin authenticated!");
           handleRouting();
-        } else {
+        } catch (error) {
+          console.error("Admin login failed:", error);
           document.getElementById("login-error").classList.remove("hidden");
         }
       }
@@ -1687,7 +1688,6 @@
               url: item.url,
             })),
           };
-          showToast("Post updated on cloud!");
         } else {
           postData = {
             id: "post-" + Date.now(),
@@ -1702,10 +1702,15 @@
               url: item.url,
             })),
           };
-          showToast("New post published to cloud!");
         }
+        const saved = await savePostToCloud(postData);
 
-        await savePostToCloud(postData);
+        if (!saved) return;
+
+        showToast(
+          editingId ? "Post updated on cloud!" : "New post published to cloud!",
+        );
+
         resetForm();
         setAdminTab("manage");
       }
