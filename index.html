@@ -1146,32 +1146,47 @@
         }
 
         const dateInput = document.getElementById("post-date");
-        if (dateInput) dateInput.value = new Date().toISOString().split("T")[0];
+        if (dateInput) {
+          dateInput.value = new Date().toISOString().split("T")[0];
+        }
 
         setupDragAndDrop();
 
-        // Fetch posts from Firestore Cloud Database
-        await fetchPostsFromCloud();
+        // Hiển thị đúng trang ngay lập tức, không chờ Firestore
+        handleRouting();
+        window.addEventListener("popstate", handleRouting);
 
+        // Đăng ký sự kiện bàn phím
         document.addEventListener("keydown", (e) => {
           const lb = document.getElementById("lightbox");
+
           if (lb.classList.contains("hidden")) {
             if (
               e.key === "Escape" &&
               !document
                 .getElementById("post-modal")
                 .classList.contains("hidden")
-            )
+            ) {
               closePostModal();
+            }
             return;
           }
+
           if (e.key === "Escape") closeLightbox();
           else if (e.key === "ArrowLeft") prevLightboxImage();
           else if (e.key === "ArrowRight") nextLightboxImage();
         });
 
-        handleRouting();
-        window.addEventListener("popstate", handleRouting);
+        // Tải dữ liệu sau khi trang đã được định tuyến
+        await fetchPostsFromCloud();
+
+        // Cập nhật bảng quản trị nếu đang ở /admin
+        if (
+          window.location.pathname.replace(/^\/+|\/+$/g, "") === "admin" &&
+          isAdminLoggedIn
+        ) {
+          renderAdminTable();
+        }
       }
 
       // Firestore Cloud Synchronizations
