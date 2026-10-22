@@ -29,11 +29,14 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <!-- Google Fonts Inter -->
+    <!-- Google Fonts Inter & Fraunces -->
     <link
       href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <!-- Firebase SDK Compat Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <style>
       :root {
         --bg: #0b0a09;
@@ -199,6 +202,270 @@
           transition: none !important;
         }
       }
+      :root {
+        --bg: #090a0b;
+        --surface: #111315;
+        --line: rgba(232, 224, 210, 0.12);
+        --ink: #f3efe7;
+        --mute: #a6a197;
+        --brass: #d7b477;
+        --brass-soft: rgba(215, 180, 119, 0.12);
+      }
+      body {
+        background:
+          radial-gradient(
+            ellipse at 82% 0%,
+            rgba(111, 91, 61, 0.12),
+            transparent 32rem
+          ),
+          var(--bg);
+        line-height: 1.55;
+      }
+      header {
+        border-color: var(--line) !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      }
+      header > div {
+        height: 76px !important;
+      }
+      header a:hover span:first-child {
+        color: var(--brass);
+      }
+      button,
+      select,
+      input,
+      textarea {
+        font: inherit;
+      }
+      button {
+        -webkit-tap-highlight-color: transparent;
+      }
+      button:not(:disabled) {
+        cursor: pointer;
+      }
+      button,
+      input,
+      select,
+      textarea,
+      .frame,
+      .glass-panel {
+        transition-property:
+          color, background-color, border-color, box-shadow, transform, opacity;
+        transition-duration: 0.22s;
+        transition-timing-function: ease;
+      }
+      button:focus-visible,
+      a:focus-visible,
+      input:focus-visible,
+      select:focus-visible,
+      textarea:focus-visible,
+      #drop-zone:focus-visible {
+        outline: 2px solid var(--brass);
+        outline-offset: 3px;
+      }
+      main {
+        padding-top: clamp(2rem, 5vw, 4.5rem) !important;
+      }
+      #site-viewer {
+        gap: clamp(2.5rem, 5vw, 4.5rem);
+      }
+      #site-viewer > div:first-child {
+        margin-bottom: 0.5rem;
+      }
+      #site-viewer h1 {
+        letter-spacing: -0.045em;
+        text-wrap: balance;
+      }
+      #site-viewer h1 em {
+        font-style: italic;
+      }
+      #hero-feature .frame {
+        border-radius: 4px;
+        box-shadow: 0 28px 80px -34px rgba(0, 0, 0, 0.85);
+      }
+      #hero-feature img {
+        filter: saturate(0.88);
+      }
+      #hero-feature:hover img {
+        transform: scale(1.025);
+        filter: saturate(1);
+      }
+      .hairline {
+        opacity: 0.75;
+      }
+      .glass-panel {
+        background: rgba(17, 19, 21, 0.86);
+        border-color: rgba(232, 224, 210, 0.13);
+        border-radius: 14px;
+        box-shadow: 0 18px 50px -35px rgba(0, 0, 0, 0.9);
+      }
+      #filter-bar {
+        top: 88px !important;
+      }
+      #viewer-search-input,
+      #viewer-category-select,
+      #admin-login-section input,
+      #post-form input,
+      #post-form select,
+      #post-form textarea {
+        background-color: #0b0d0e;
+        border-color: #2a2d2f;
+        border-radius: 9px;
+        min-height: 42px;
+      }
+      #viewer-search-input:focus,
+      #viewer-category-select:focus,
+      #admin-login-section input:focus,
+      #post-form input:focus,
+      #post-form select:focus,
+      #post-form textarea:focus {
+        border-color: rgba(215, 180, 119, 0.7);
+        box-shadow: 0 0 0 3px rgba(215, 180, 119, 0.08);
+      }
+      #category-pills button {
+        padding: 0.55rem 1rem;
+        white-space: nowrap;
+        border-radius: 999px;
+        letter-spacing: 0.01em;
+      }
+      .masonry-grid {
+        column-gap: 1.35rem;
+      }
+      .masonry-item {
+        margin-bottom: 2.6rem;
+      }
+      .masonry-item .frame {
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.055);
+        box-shadow: 0 18px 36px -28px rgba(0, 0, 0, 0.9);
+      }
+      .masonry-item .frame img {
+        display: block;
+      }
+      .masonry-item h3 {
+        letter-spacing: -0.018em;
+      }
+      .masonry-item:hover h3 {
+        color: var(--brass);
+      }
+      #admin-login-section > div {
+        background: linear-gradient(
+          145deg,
+          rgba(25, 26, 27, 0.98),
+          rgba(14, 15, 16, 0.98)
+        );
+        border-color: var(--line);
+        box-shadow: 0 30px 90px -45px rgba(0, 0, 0, 0.95);
+      }
+      #site-admin {
+        gap: 2rem;
+      }
+      #site-admin > div:first-child {
+        border-color: var(--line);
+        padding-bottom: 1.25rem;
+      }
+      #admin-tab-create form,
+      #admin-tab-manage > div {
+        background: rgba(17, 19, 21, 0.78);
+        border-color: var(--line);
+        border-radius: 14px;
+        box-shadow: 0 20px 55px -45px rgba(0, 0, 0, 0.9);
+      }
+      #drop-zone {
+        min-height: 150px;
+        border-radius: 12px;
+        border-color: #393a37;
+        background:
+          radial-gradient(
+            ellipse at center,
+            rgba(215, 180, 119, 0.055),
+            transparent 70%
+          ),
+          rgba(9, 10, 11, 0.65);
+      }
+      #drop-zone:hover {
+        border-color: var(--brass);
+        background-color: rgba(215, 180, 119, 0.035);
+      }
+      #queue-list > div {
+        border-radius: 8px;
+      }
+      #admin-tab-manage thead {
+        background: #0d0f10;
+      }
+      #admin-tab-manage tbody tr:hover {
+        background: rgba(255, 255, 255, 0.025);
+      }
+      #admin-tab-manage table th {
+        font-weight: 600;
+        letter-spacing: 0.12em;
+      }
+      #post-modal > div > div {
+        background: #111315;
+        border-color: var(--line);
+        border-radius: 12px;
+      }
+      #modal-gallery-grid > div {
+        border-color: var(--line);
+      }
+      footer {
+        border-color: var(--line);
+        background: rgba(0, 0, 0, 0.12);
+      }
+      footer .font-display {
+        letter-spacing: -0.03em;
+      }
+      #toast-container > div {
+        border-color: rgba(255, 255, 255, 0.12);
+        background: rgba(20, 22, 23, 0.96);
+        backdrop-filter: blur(16px);
+        border-radius: 10px;
+        padding: 0.85rem 1rem;
+      }
+      #lightbox button {
+        transition:
+          background-color 0.2s,
+          transform 0.2s;
+      }
+      #lightbox button:hover {
+        transform: translateY(-1px);
+        background-color: #292a2b;
+      }
+      @media (max-width: 639px) {
+        header > div {
+          height: 64px !important;
+        }
+        main {
+          padding-top: 1.75rem !important;
+        }
+        #site-viewer h1 {
+          font-size: clamp(2.75rem, 13vw, 4rem);
+        }
+        #filter-bar {
+          top: 72px !important;
+        }
+        .masonry-item {
+          margin-bottom: 1.8rem;
+        }
+        #admin-tab-create form {
+          padding: 1.1rem;
+        }
+        #admin-tab-manage table {
+          min-width: 650px;
+        }
+        footer {
+          margin-top: 4rem;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
     </style>
   </head>
   <body
@@ -239,8 +506,6 @@
             <i class="fa-solid fa-sliders text-xs"></i>
             <span>Filter</span>
           </button>
-
-          <!-- Admin Logout Button (Chỉ hiện khi ở trang admin) -->
           <button
             id="btn-logout"
             onclick="handleLogout()"
@@ -261,9 +526,8 @@
 
     <!-- MAIN CONTENT CONTAINER -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- ==================== VIEWER SITE ==================== -->
+      <!-- VIEWER SITE -->
       <section id="site-viewer" class="space-y-10">
-        <!-- Hero -->
         <div
           class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-end pt-4 sm:pt-10"
         >
@@ -288,7 +552,7 @@
           ></a>
         </div>
 
-        <!-- Floating Filter & Search Bar -->
+        <!-- Filter & Search Bar -->
         <div
           id="filter-bar"
           class="glass-panel rounded-xl p-4 space-y-4 transition-all sticky top-20 z-30"
@@ -319,8 +583,6 @@
               <option value="Art">Art</option>
             </select>
           </div>
-
-          <!-- Category Pills -->
           <div
             id="category-pills"
             class="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none"
@@ -344,7 +606,7 @@
         </div>
       </section>
 
-      <!-- ==================== ADMIN LOGIN SECTION ==================== -->
+      <!-- ADMIN LOGIN SECTION -->
       <section
         id="admin-login-section"
         class="hidden py-16 flex items-center justify-center min-h-[50vh]"
@@ -360,7 +622,6 @@
               Sign in to manage posts and upload photos
             </p>
           </div>
-
           <form onsubmit="handleAdminLogin(event)" class="space-y-4">
             <div class="space-y-1">
               <label
@@ -375,7 +636,6 @@
                 class="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 focus:outline-none focus:border-zinc-600 text-xs transition"
               />
             </div>
-
             <div class="space-y-1">
               <label
                 class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider"
@@ -389,14 +649,12 @@
                 class="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 focus:outline-none focus:border-zinc-600 text-xs transition"
               />
             </div>
-
             <div
               id="login-error"
               class="hidden text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-lg text-center"
             >
               Invalid credentials!
             </div>
-
             <button
               type="submit"
               class="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs transition"
@@ -407,7 +665,7 @@
         </div>
       </section>
 
-      <!-- ==================== ADMIN DASHBOARD SECTION ==================== -->
+      <!-- ADMIN DASHBOARD SECTION -->
       <section id="site-admin" class="hidden space-y-8">
         <div
           class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-4"
@@ -444,7 +702,6 @@
             class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-6 space-y-6"
           >
             <input type="hidden" id="editing-post-id" value="" />
-
             <div
               class="flex items-center justify-between border-b border-zinc-800 pb-3"
             >
@@ -463,7 +720,6 @@
                 Cancel Edit
               </button>
             </div>
-
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div class="sm:col-span-2 space-y-1">
                 <label
@@ -478,7 +734,6 @@
                   class="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 focus:outline-none focus:border-zinc-600 text-xs transition"
                 />
               </div>
-
               <div class="space-y-1">
                 <label
                   class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider"
@@ -496,7 +751,6 @@
                   <option value="Art">Art</option>
                 </select>
               </div>
-
               <div class="space-y-1">
                 <label
                   class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider"
@@ -508,7 +762,6 @@
                   class="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 focus:outline-none focus:border-zinc-600 text-xs transition"
                 />
               </div>
-
               <div class="sm:col-span-2 space-y-1">
                 <label
                   class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider"
@@ -529,7 +782,6 @@
                 class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider block"
                 >Photo Files *</label
               >
-
               <div
                 id="drop-zone"
                 onclick="document.getElementById('file-input').click()"
@@ -553,8 +805,6 @@
                   onchange="handleFileSelect(event)"
                 />
               </div>
-
-              <!-- Queue -->
               <div id="queue-container" class="space-y-2">
                 <div
                   class="flex items-center justify-between text-xs text-zinc-400"
@@ -631,7 +881,7 @@
       </section>
     </main>
 
-    <!-- FOOTER WITH COPYRIGHT NOTICE -->
+    <!-- FOOTER -->
     <footer class="border-t border-[var(--line)] mt-24">
       <div
         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 grid sm:grid-cols-2 gap-8 items-end"
@@ -647,7 +897,8 @@
           <div class="flex sm:justify-end gap-5">
             <span class="hover:text-[var(--ink)] cursor-pointer transition"
               >Privacy</span
-            ><span class="hover:text-[var(--ink)] cursor-pointer transition"
+            >
+            <span class="hover:text-[var(--ink)] cursor-pointer transition"
               >Terms</span
             >
           </div>
@@ -656,7 +907,7 @@
       </div>
     </footer>
 
-    <!-- ==================== POST DETAIL MODAL ==================== -->
+    <!-- POST DETAIL MODAL -->
     <div
       id="post-modal"
       class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md overflow-y-auto"
@@ -671,7 +922,6 @@
           >
             <i class="fa-solid fa-xmark text-sm"></i>
           </button>
-
           <div class="p-6 sm:p-8 border-b border-zinc-800 space-y-3">
             <div class="flex items-center gap-3 text-xs text-zinc-400">
               <span
@@ -693,7 +943,6 @@
               class="text-[var(--mute)] text-base leading-relaxed max-w-2xl"
             ></p>
           </div>
-
           <div class="p-6 sm:p-8 space-y-3">
             <h3
               class="text-xs font-semibold text-zinc-400 uppercase tracking-wider"
@@ -709,7 +958,7 @@
       </div>
     </div>
 
-    <!-- FULLSCREEN LIGHTBOX OVERLAY -->
+    <!-- LIGHTBOX -->
     <div
       id="lightbox"
       class="fixed inset-0 z-[70] hidden bg-black/97 flex flex-col justify-between p-4 select-none"
@@ -749,7 +998,6 @@
           </button>
         </div>
       </div>
-
       <div
         class="relative flex-grow flex items-center justify-center my-4 overflow-hidden"
       >
@@ -776,14 +1024,28 @@
           <i class="fa-solid fa-chevron-right text-xs"></i>
         </button>
       </div>
-
       <div class="text-center text-xs text-zinc-500">
         LUMINA Fine Art Photography
       </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT & FIREBASE LOGIC -->
     <script>
+      // Firebase Configuration từ dự án của bạn
+      const firebaseConfig = {
+        apiKey: "AIzaSyDzLtMeOT7HA4Eynnt6TgG5cRrHRvzLnHE",
+        authDomain: "lumina-2efda.firebaseapp.com",
+        projectId: "lumina-2efda",
+        storageBucket: "lumina-2efda.firebasestorage.app",
+        messagingSenderId: "747527928749",
+        appId: "1:747527928749:web:ac0125a46fc11d76adbf24",
+        measurementId: "G-EKRXR7QQN3",
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+
       const SAMPLE_POSTS = [
         {
           id: "post-1",
@@ -878,19 +1140,7 @@
       let currentLightboxIndex = 0;
       let isZoomed = false;
 
-      function initApp() {
-        const savedPosts = localStorage.getItem("lumina_posts");
-        if (savedPosts) {
-          try {
-            posts = JSON.parse(savedPosts);
-          } catch (e) {
-            posts = [...SAMPLE_POSTS];
-          }
-        } else {
-          posts = [...SAMPLE_POSTS];
-          savePostsToStorage();
-        }
-
+      async function initApp() {
         if (localStorage.getItem("lumina_admin_auth") === "true") {
           isAdminLoggedIn = true;
         }
@@ -899,6 +1149,10 @@
         if (dateInput) dateInput.value = new Date().toISOString().split("T")[0];
 
         setupDragAndDrop();
+
+        // Fetch posts from Firestore Cloud Database
+        await fetchPostsFromCloud();
+
         document.addEventListener("keydown", (e) => {
           const lb = document.getElementById("lightbox");
           if (lb.classList.contains("hidden")) {
@@ -916,18 +1170,53 @@
           else if (e.key === "ArrowRight") nextLightboxImage();
         });
 
-        // Handle HTML5 History API routing
         handleRouting();
         window.addEventListener("popstate", handleRouting);
       }
 
-      function savePostsToStorage() {
-        localStorage.setItem("lumina_posts", JSON.stringify(posts));
+      // Firestore Cloud Synchronizations
+      async function fetchPostsFromCloud() {
+        try {
+          const snapshot = await db
+            .collection("posts")
+            .orderBy("date", "desc")
+            .get();
+          if (snapshot.empty) {
+            for (let post of SAMPLE_POSTS) {
+              await db.collection("posts").doc(post.id).set(post);
+            }
+            posts = [...SAMPLE_POSTS];
+          } else {
+            posts = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          }
+        } catch (error) {
+          console.error("Error fetching posts: ", error);
+          posts = [...SAMPLE_POSTS];
+        }
+        renderViewerPosts();
       }
 
-      // ==========================================
-      // ROUTING SYSTEM (HTML5 HISTORY API)
-      // ==========================================
+      async function savePostToCloud(post) {
+        try {
+          await db.collection("posts").doc(post.id).set(post);
+          await fetchPostsFromCloud();
+        } catch (error) {
+          console.error("Error saving post: ", error);
+          showToast("Error saving to database!", "error");
+        }
+      }
+
+      async function deletePostFromCloud(postId) {
+        try {
+          await db.collection("posts").doc(postId).delete();
+          await fetchPostsFromCloud();
+          showToast("Post deleted from database.");
+        } catch (error) {
+          console.error("Error deleting post: ", error);
+          showToast("Error deleting post!", "error");
+        }
+      }
+
       function navigateTo(route) {
         const path = route ? `/${route}` : `/`;
         window.history.pushState({}, "", path);
@@ -946,7 +1235,6 @@
 
         if (path === "admin") {
           viewerSec.classList.add("hidden");
-
           if (!isAdminLoggedIn) {
             adminSec.classList.add("hidden");
             adminLoginSec.classList.remove("hidden");
@@ -981,7 +1269,6 @@
         bar.classList.toggle("hidden");
       }
 
-      // AUTHENTICATION
       function handleAdminLogin(e) {
         e.preventDefault();
         const userIn = document.getElementById("admin-username").value.trim();
@@ -1008,7 +1295,6 @@
         navigateTo("");
       }
 
-      // VIEWER FUNCTIONS
       function renderCategoryPills() {
         const categories = [
           "ALL",
@@ -1124,7 +1410,6 @@
                 ? post.images[0].url
                 : "https://placehold.co/800x600/121215/ffffff?text=No+Image";
             const imgCount = post.images ? post.images.length : 0;
-
             return `
             <article onclick="navigateTo('post-${post.id.replace("post-", "")}')" class="masonry-item card group cursor-pointer" style="animation-delay:${Math.min(i, 8) * 60}ms">
               <div class="frame">
@@ -1143,8 +1428,7 @@
           .join("");
       }
 
-      // MODAL & LIGHTBOX
-      function openPostModal(postId, updateHash = true) {
+      async function openPostModal(postId, updateHash = true) {
         const post = posts.find(
           (p) =>
             p.id === postId || p.id === `post-${postId.replace("post-", "")}`,
@@ -1157,7 +1441,7 @@
         }
 
         post.views = (post.views || 0) + 1;
-        savePostsToStorage();
+        await savePostToCloud(post);
 
         document.getElementById("modal-title").innerText = post.title;
         document.getElementById("modal-category").innerText = post.category;
@@ -1198,7 +1482,6 @@
       function openLightbox(postId, index) {
         const post = posts.find((p) => p.id === postId);
         if (!post || !post.images) return;
-
         currentLightboxGallery = post.images;
         currentLightboxIndex = index;
         updateLightboxContent();
@@ -1263,7 +1546,6 @@
         showToast("Downloading photo...");
       }
 
-      // ADMIN TAB & UPLOAD LOGIC
       function setAdminTab(tab) {
         const btnCreate = document.getElementById("tab-btn-create");
         const btnManage = document.getElementById("tab-btn-manage");
@@ -1291,14 +1573,12 @@
       function setupDragAndDrop() {
         const dropZone = document.getElementById("drop-zone");
         if (!dropZone) return;
-
         ["dragenter", "dragover", "dragleave", "drop"].forEach((eName) => {
           dropZone.addEventListener(eName, (e) => {
             e.preventDefault();
             e.stopPropagation();
           });
         });
-
         dropZone.addEventListener("drop", (e) => {
           processSelectedFiles(e.dataTransfer.files);
         });
@@ -1331,12 +1611,10 @@
       function renderQueue() {
         const queueList = document.getElementById("queue-list");
         document.getElementById("queue-count").innerText = uploadQueue.length;
-
         if (uploadQueue.length === 0) {
           queueList.innerHTML = `<p class="text-xs text-zinc-500 italic col-span-full">No photos queued.</p>`;
           return;
         }
-
         queueList.innerHTML = uploadQueue
           .map(
             (item, idx) => `
@@ -1361,7 +1639,7 @@
         document.getElementById("file-input").value = "";
       }
 
-      function handlePublishPost(e) {
+      async function handlePublishPost(e) {
         e.preventDefault();
         if (!isAdminLoggedIn) return;
 
@@ -1378,21 +1656,25 @@
           return;
         }
 
+        let postData;
         if (editingId) {
           const targetPost = posts.find((p) => p.id === editingId);
-          if (targetPost) {
-            targetPost.title = title;
-            targetPost.category = category;
-            targetPost.date = date;
-            targetPost.description = desc;
-            targetPost.images = uploadQueue.map((item) => ({
+          postData = {
+            id: editingId,
+            title,
+            category,
+            date,
+            description: desc,
+            views: targetPost ? targetPost.views || 0 : 0,
+            isPublic: true,
+            images: uploadQueue.map((item) => ({
               id: item.id || "img-" + Date.now(),
               url: item.url,
-            }));
-          }
-          showToast("Post updated!");
+            })),
+          };
+          showToast("Post updated on cloud!");
         } else {
-          posts.unshift({
+          postData = {
             id: "post-" + Date.now(),
             title,
             category,
@@ -1404,11 +1686,11 @@
               id: "img-" + Date.now(),
               url: item.url,
             })),
-          });
-          showToast("New post published!");
+          };
+          showToast("New post published to cloud!");
         }
 
-        savePostsToStorage();
+        await savePostToCloud(postData);
         resetForm();
         setAdminTab("manage");
       }
@@ -1482,12 +1764,10 @@
           .join("");
       }
 
-      function deletePost(postId) {
-        if (!confirm("Delete this post permanently?")) return;
-        posts = posts.filter((p) => p.id !== postId);
-        savePostsToStorage();
+      async function deletePost(postId) {
+        if (!confirm("Delete this post permanently from database?")) return;
+        await deletePostFromCloud(postId);
         renderAdminTable();
-        showToast("Post deleted.");
       }
 
       function showToast(message, type = "success") {
@@ -1496,7 +1776,6 @@
         toast.className = `pointer-events-auto px-4 py-2.5 rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-100 text-xs shadow-xl flex items-center gap-2 transform transition duration-300 translate-y-2 opacity-0`;
         toast.innerHTML = `<i class="fa-solid ${type === "error" ? "fa-circle-exclamation text-rose-400" : "fa-circle-check text-emerald-400"}"></i><span>${message}</span>`;
         container.appendChild(toast);
-
         setTimeout(
           () => toast.classList.remove("translate-y-2", "opacity-0"),
           10,
