@@ -1643,6 +1643,8 @@
         }
 
         let postData;
+        let targetId = editingId;
+
         if (editingId) {
           const targetPost = posts.find((p) => p.id === editingId);
           postData = {
@@ -1658,9 +1660,11 @@
               url: item.url,
             })),
           };
+          showToast("Post updated successfully!");
         } else {
+          targetId = "post-" + Date.now();
           postData = {
-            id: "post-" + Date.now(),
+            id: targetId,
             title,
             category,
             date,
@@ -1672,17 +1676,19 @@
               url: item.url,
             })),
           };
+          showToast("New post published successfully!");
         }
 
+        // Lưu lên Cloud Database và cập nhật cache
         await savePostToCloud(postData);
         await fetchPostsFromCloud();
 
-        showToast(
-          editingId ? "Post updated on cloud!" : "New post published to cloud!",
-        );
-
         resetForm();
-        setAdminTab("manage");
+
+        // Tự động chuyển hướng sang trang chi tiết (Post Detail) của bài viết vừa tạo
+        setTimeout(() => {
+          navigateTo(`post-${targetId.replace("post-", "")}`);
+        }, 500);
       }
 
       function editPost(postId) {
