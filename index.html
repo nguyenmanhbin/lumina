@@ -1042,95 +1042,8 @@
       const auth = firebase.auth();
       const db = firebase.firestore();
 
-      const SAMPLE_POSTS = [
-        {
-          id: "post-1",
-          title: "Majestic Alpine Sunrise",
-          category: "Nature",
-          date: "2026-10-18",
-          description:
-            "Golden morning sunlight spreading over snow-capped mountain peaks.",
-          views: 342,
-          isPublic: true,
-          images: [
-            {
-              id: "img-11",
-              url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2000",
-            },
-            {
-              id: "img-12",
-              url: "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=2000",
-            },
-            {
-              id: "img-13",
-              url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2000",
-            },
-          ],
-        },
-        {
-          id: "post-2",
-          title: "Illuminated Metropolis",
-          category: "Urban",
-          date: "2026-10-19",
-          description:
-            "Long-exposure night perspectives showcasing vibrant city traffic and architecture.",
-          views: 512,
-          isPublic: true,
-          images: [
-            {
-              id: "img-21",
-              url: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=2000",
-            },
-            {
-              id: "img-22",
-              url: "https://images.unsplash.com/photo-1477959858617-67f30ac4ce78?q=80&w=2000",
-            },
-          ],
-        },
-        {
-          id: "post-3",
-          title: "Studio Lighting & Expression",
-          category: "Portrait",
-          date: "2026-10-20",
-          description:
-            "Professional studio lighting techniques emphasizing genuine character.",
-          views: 289,
-          isPublic: true,
-          images: [
-            {
-              id: "img-31",
-              url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=2000",
-            },
-            {
-              id: "img-32",
-              url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=2000",
-            },
-          ],
-        },
-        {
-          id: "post-4",
-          title: "Minimalist Modern Geometry",
-          category: "Architecture",
-          date: "2026-10-21",
-          description:
-            "Sharp structural lines and interplay of light across contemporary facades.",
-          views: 198,
-          isPublic: true,
-          images: [
-            {
-              id: "img-41",
-              url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2000",
-            },
-          ],
-        },
-      ];
-
-      const ADMIN_CREDENTIALS = { username: "admin", password: "admin123" };
-
       // Tăng tốc: Lấy ngay từ localStorage nếu có để render siêu tốc không chờ mạng
-      let posts = JSON.parse(localStorage.getItem("lumina_posts_cache")) || [
-        ...SAMPLE_POSTS,
-      ];
+      let posts = JSON.parse(localStorage.getItem("lumina_posts_cache")) || [];
       let isAdminLoggedIn = false;
       let uploadQueue = [];
       let selectedCategoryFilter = "ALL";
@@ -1180,11 +1093,16 @@
             .collection("posts")
             .orderBy("date", "desc")
             .get();
+
           if (!snapshot.empty) {
             posts = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
             localStorage.setItem("lumina_posts_cache", JSON.stringify(posts));
-            handleRouting(); // Cập nhật lại giao diện theo dữ liệu mới nhất từ cloud
+          } else {
+            posts = [];
+            localStorage.removeItem("lumina_posts_cache");
           }
+
+          handleRouting(); // Cập nhật lại giao diện chuẩn xác từ Cloud
         } catch (error) {
           console.error("Error fetching posts: ", error);
         }
