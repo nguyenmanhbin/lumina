@@ -401,14 +401,6 @@
         font-weight: 600;
         letter-spacing: 0.12em;
       }
-      #post-modal > div > div {
-        background: #111315;
-        border-color: var(--line);
-        border-radius: 12px;
-      }
-      #modal-gallery-grid > div {
-        border-color: var(--line);
-      }
       footer {
         border-color: var(--line);
         background: rgba(0, 0, 0, 0.12);
@@ -527,7 +519,7 @@
 
     <!-- MAIN CONTENT CONTAINER -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- VIEWER SITE -->
+      <!-- VIEWER SITE (Home Grid) -->
       <section id="site-viewer" class="space-y-10">
         <div
           class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-end pt-4 sm:pt-10"
@@ -604,6 +596,60 @@
           <p class="text-zinc-500 text-xs max-w-sm mx-auto">
             Try adjusting your search criteria or category filter.
           </p>
+        </div>
+      </section>
+
+      <!-- ==================== DEDICATED POST DETAIL PAGE ==================== -->
+      <section
+        id="site-post-detail"
+        class="hidden space-y-12 max-w-5xl mx-auto pt-6"
+      >
+        <div>
+          <button
+            onclick="navigateTo('')"
+            class="inline-flex items-center gap-2 text-xs text-[var(--mute)] hover:text-[var(--ink)] transition mb-8 group"
+          >
+            <i
+              class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"
+            ></i>
+            <span>Back to portfolio</span>
+          </button>
+
+          <div class="space-y-4 border-b border-[var(--line)] pb-8">
+            <div class="flex items-center gap-3 text-xs text-[var(--mute)]">
+              <span
+                id="detail-category"
+                class="px-3 py-1 bg-zinc-900 border border-zinc-800 text-[var(--brass)] rounded-full font-medium"
+                >Nature</span
+              >
+              <span id="detail-date">2026-10-21</span>
+              <span>·</span>
+              <span id="detail-views">124 views</span>
+            </div>
+            <h1
+              id="detail-title"
+              class="font-display text-4xl sm:text-6xl font-light tracking-tight text-[var(--ink)]"
+            >
+              Post Title
+            </h1>
+            <p
+              id="detail-desc"
+              class="text-[var(--mute)] text-lg leading-relaxed max-w-3xl pt-2"
+            ></p>
+          </div>
+        </div>
+
+        <!-- Photo Collection Full Layout -->
+        <div class="space-y-6">
+          <div
+            class="flex items-center justify-between text-xs font-semibold text-[var(--mute)] uppercase tracking-wider"
+          >
+            <span
+              >Photo Series Gallery (<span id="detail-img-count">0</span>)</span
+            >
+            <span>Click any image to expand</span>
+          </div>
+          <div id="detail-gallery-grid" class="grid grid-cols-1 gap-8"></div>
         </div>
       </section>
 
@@ -909,57 +955,6 @@
       </div>
     </footer>
 
-    <!-- POST DETAIL MODAL -->
-    <div
-      id="post-modal"
-      class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md overflow-y-auto"
-    >
-      <div class="min-h-screen px-4 py-8 flex items-center justify-center">
-        <div
-          class="relative w-full max-w-5xl bg-[#12110f] border border-[var(--line)] rounded-xl overflow-hidden space-y-6 shadow-2xl"
-        >
-          <button
-            onclick="closePostModal()"
-            class="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-zinc-950 text-zinc-400 hover:text-white flex items-center justify-center border border-zinc-800"
-          >
-            <i class="fa-solid fa-xmark text-sm"></i>
-          </button>
-          <div class="p-6 sm:p-8 border-b border-zinc-800 space-y-3">
-            <div class="flex items-center gap-3 text-xs text-zinc-400">
-              <span
-                id="modal-category"
-                class="px-2.5 py-0.5 bg-zinc-800 text-zinc-200 rounded-md font-medium"
-                >Nature</span
-              >
-              <span id="modal-date">2026-10-21</span>
-              <span id="modal-views">124 views</span>
-            </div>
-            <h2
-              id="modal-title"
-              class="font-display text-4xl sm:text-5xl font-light tracking-tight text-[var(--ink)]"
-            >
-              Post Title
-            </h2>
-            <p
-              id="modal-desc"
-              class="text-[var(--mute)] text-base leading-relaxed max-w-2xl"
-            ></p>
-          </div>
-          <div class="p-6 sm:p-8 space-y-3">
-            <h3
-              class="text-xs font-semibold text-zinc-400 uppercase tracking-wider"
-            >
-              Photo Collection (<span id="modal-img-count">0</span>)
-            </h3>
-            <div
-              id="modal-gallery-grid"
-              class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
-            ></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- LIGHTBOX -->
     <div
       id="lightbox"
@@ -1033,7 +1028,6 @@
 
     <!-- JAVASCRIPT & FIREBASE LOGIC -->
     <script>
-      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
       const firebaseConfig = {
         apiKey: "AIzaSyDzlTmeOT7HA4Eynnt6TgG5cRrhRvzLnHE",
         authDomain: "lumina-2efda.firebaseapp.com",
@@ -1044,7 +1038,6 @@
         measurementId: "G-EKRXR7QQN3",
       };
 
-      // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
       const auth = firebase.auth();
       const db = firebase.firestore();
@@ -1134,7 +1127,10 @@
 
       const ADMIN_CREDENTIALS = { username: "admin", password: "admin123" };
 
-      let posts = [];
+      // Tăng tốc: Lấy ngay từ localStorage nếu có để render siêu tốc không chờ mạng
+      let posts = JSON.parse(localStorage.getItem("lumina_posts_cache")) || [
+        ...SAMPLE_POSTS,
+      ];
       let isAdminLoggedIn = false;
       let uploadQueue = [];
       let selectedCategoryFilter = "ALL";
@@ -1155,35 +1151,21 @@
 
         setupDragAndDrop();
 
-        // Hiển thị đúng trang ngay lập tức, không chờ Firestore
+        // Render ngay lập tức từ cache cục bộ cho cực kỳ mượt và không bị độ trễ
         handleRouting();
         window.addEventListener("popstate", handleRouting);
 
-        // Đăng ký sự kiện bàn phím
         document.addEventListener("keydown", (e) => {
           const lb = document.getElementById("lightbox");
-
-          if (lb.classList.contains("hidden")) {
-            if (
-              e.key === "Escape" &&
-              !document
-                .getElementById("post-modal")
-                .classList.contains("hidden")
-            ) {
-              closePostModal();
-            }
-            return;
-          }
-
+          if (lb.classList.contains("hidden")) return;
           if (e.key === "Escape") closeLightbox();
           else if (e.key === "ArrowLeft") prevLightboxImage();
           else if (e.key === "ArrowRight") nextLightboxImage();
         });
 
-        // Tải dữ liệu sau khi trang đã được định tuyến
+        // Ngầm đồng bộ dữ liệu mới nhất từ Cloud Database phía sau
         await fetchPostsFromCloud();
 
-        // Cập nhật bảng quản trị nếu đang ở /admin
         if (
           window.location.pathname.replace(/^\/+|\/+$/g, "") === "admin" &&
           isAdminLoggedIn
@@ -1192,32 +1174,26 @@
         }
       }
 
-      // Firestore Cloud Synchronizations
       async function fetchPostsFromCloud() {
         try {
           const snapshot = await db
             .collection("posts")
             .orderBy("date", "desc")
             .get();
-          if (snapshot.empty) {
-            for (let post of SAMPLE_POSTS) {
-              await db.collection("posts").doc(post.id).set(post);
-            }
-            posts = [...SAMPLE_POSTS];
-          } else {
+          if (!snapshot.empty) {
             posts = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+            localStorage.setItem("lumina_posts_cache", JSON.stringify(posts));
+            handleRouting(); // Cập nhật lại giao diện theo dữ liệu mới nhất từ cloud
           }
         } catch (error) {
           console.error("Error fetching posts: ", error);
-          posts = [...SAMPLE_POSTS];
         }
-        renderViewerPosts();
       }
 
       async function savePostToCloud(post) {
         try {
           await db.collection("posts").doc(post.id).set(post);
-          await fetchPostsFromCloud();
+          localStorage.setItem("lumina_posts_cache", JSON.stringify(posts));
         } catch (error) {
           console.error("Error saving post: ", error);
           showToast("Error saving to database!", "error");
@@ -1227,7 +1203,8 @@
       async function deletePostFromCloud(postId) {
         try {
           await db.collection("posts").doc(postId).delete();
-          await fetchPostsFromCloud();
+          posts = posts.filter((p) => p.id !== postId);
+          localStorage.setItem("lumina_posts_cache", JSON.stringify(posts));
           showToast("Post deleted from database.");
         } catch (error) {
           console.error("Error deleting post: ", error);
@@ -1239,45 +1216,40 @@
         const path = route ? `/${route}` : `/`;
         window.history.pushState({}, "", path);
         handleRouting();
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
       function handleRouting() {
         let path = window.location.pathname.replace(/^\//, "");
         const viewerSec = document.getElementById("site-viewer");
+        const detailSec = document.getElementById("site-post-detail");
         const adminSec = document.getElementById("site-admin");
         const adminLoginSec = document.getElementById("admin-login-section");
         const logoutBtn = document.getElementById("btn-logout");
 
-        document.getElementById("post-modal").classList.add("hidden");
         document.body.style.overflow = "";
 
+        // Ẩn tất cả các section chính trước
+        viewerSec.classList.add("hidden");
+        detailSec.classList.add("hidden");
+        adminSec.classList.add("hidden");
+        adminLoginSec.classList.add("hidden");
+        logoutBtn.classList.add("hidden");
+
         if (path === "admin") {
-          viewerSec.classList.add("hidden");
           if (!isAdminLoggedIn) {
-            adminSec.classList.add("hidden");
             adminLoginSec.classList.remove("hidden");
-            logoutBtn.classList.add("hidden");
           } else {
-            adminLoginSec.classList.add("hidden");
             adminSec.classList.remove("hidden");
             logoutBtn.classList.remove("hidden");
             renderAdminTable();
           }
         } else if (path.startsWith("post-") || path.startsWith("post/")) {
           const postId = path.replace("post/", "post-");
-          viewerSec.classList.remove("hidden");
-          adminSec.classList.add("hidden");
-          adminLoginSec.classList.add("hidden");
-          logoutBtn.classList.add("hidden");
-
-          renderViewerPosts();
-          openPostModal(postId, false);
+          detailSec.classList.remove("hidden");
+          renderPostDetailPage(postId);
         } else {
           viewerSec.classList.remove("hidden");
-          adminSec.classList.add("hidden");
-          adminLoginSec.classList.add("hidden");
-          logoutBtn.classList.add("hidden");
-
           renderViewerPosts();
         }
       }
@@ -1289,7 +1261,6 @@
 
       async function handleAdminLogin(e) {
         e.preventDefault();
-
         const email = document.getElementById("admin-username").value.trim();
         const password = document.getElementById("admin-password").value;
 
@@ -1365,7 +1336,7 @@
             "onclick",
             `navigateTo('post-${latest.id.replace("post-", "")}');return false;`,
           );
-          feat.innerHTML = `<div class="frame aspect-[4/3] sm:aspect-[16/11]"><img src="${latest.images[0].url}" alt="${esc(latest.title)}" class="w-full h-full object-cover"><div class="absolute inset-x-0 bottom-0 z-[2] p-5 sm:p-7 bg-gradient-to-t from-black/80 to-transparent"><p class="text-xs text-[var(--brass)] mb-1">Latest series · ${latest.category}</p><p class="font-display text-2xl sm:text-3xl font-light">${esc(latest.title)}</p></div></div>`;
+          feat.innerHTML = `<div class="frame aspect-[4/3] sm:aspect-[16/11]"><img src="${latest.images[0].url}" alt="${esc(latest.title)}" class="w-full h-full object-cover" loading="lazy"><div class="absolute inset-x-0 bottom-0 z-[2] p-5 sm:p-7 bg-gradient-to-t from-black/80 to-transparent"><p class="text-xs text-[var(--brass)] mb-1">Latest series · ${latest.category}</p><p class="font-display text-2xl sm:text-3xl font-light">${esc(latest.title)}</p></div></div>`;
         } else feat.innerHTML = "";
         const photos = pub.reduce(
           (n, p) => n + (p.images ? p.images.length : 0),
@@ -1444,55 +1415,54 @@
           .join("");
       }
 
-      async function openPostModal(postId, updateHash = true) {
+      // ==========================================
+      // RENDER TRANG CHI TIẾT BÀI VIẾT (FULL PAGE)
+      // ==========================================
+      async function renderPostDetailPage(postId) {
         const post = posts.find(
           (p) =>
             p.id === postId || p.id === `post-${postId.replace("post-", "")}`,
         );
-        if (!post) return;
-
-        if (updateHash) {
-          navigateTo(`post-${post.id.replace("post-", "")}`);
+        if (!post) {
+          document.getElementById("detail-title").innerText = "Post not found";
+          document.getElementById("detail-desc").innerText =
+            "The requested photography series does not exist.";
+          document.getElementById("detail-gallery-grid").innerHTML = "";
           return;
         }
 
+        // Tăng lượt view
         post.views = (post.views || 0) + 1;
-        await savePostToCloud(post);
+        savePostToCloud(post);
 
-        document.getElementById("modal-title").innerText = post.title;
-        document.getElementById("modal-category").innerText = post.category;
-        document.getElementById("modal-date").innerText = post.date;
-        document.getElementById("modal-views").innerText =
+        document.getElementById("detail-category").innerText = post.category;
+        document.getElementById("detail-date").innerText = post.date;
+        document.getElementById("detail-views").innerText =
           `${post.views} views`;
-        document.getElementById("modal-desc").innerText =
-          post.description || "No description.";
-        document.getElementById("modal-img-count").innerText = post.images
+        document.getElementById("detail-title").innerText = post.title;
+        document.getElementById("detail-desc").innerText =
+          post.description || "No description provided for this collection.";
+        document.getElementById("detail-img-count").innerText = post.images
           ? post.images.length
           : 0;
 
-        const modalGallery = document.getElementById("modal-gallery-grid");
+        const galleryGrid = document.getElementById("detail-gallery-grid");
         if (post.images && post.images.length > 0) {
-          modalGallery.innerHTML = post.images
+          galleryGrid.innerHTML = post.images
             .map(
               (img, index) => `
-            <div onclick="openLightbox('${post.id}', ${index})" class="group relative rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800 aspect-[4/5] cursor-pointer hover:border-zinc-600 transition">
-              <img src="${img.url}" alt="" class="w-full h-full object-cover transition duration-700 group-hover:scale-105" loading="lazy">
+            <div onclick="openLightbox('${post.id}', ${index})" class="group relative rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-800/80 cursor-pointer shadow-2xl transition hover:border-[var(--brass)]">
+              <img src="${img.url}" alt="${esc(post.title)} - Photo ${index + 1}" class="w-full h-auto object-cover max-h-[85vh] mx-auto transition duration-700 group-hover:scale-[1.01]" loading="lazy">
+              <div class="absolute bottom-4 right-4 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-xs text-zinc-300 opacity-0 group-hover:opacity-100 transition">
+                <i class="fa-solid fa-expand mr-1.5"></i> Click to enlarge
+              </div>
             </div>
           `,
             )
             .join("");
         } else {
-          modalGallery.innerHTML = `<p class="text-zinc-500 text-xs col-span-full">No images available.</p>`;
+          galleryGrid.innerHTML = `<p class="text-zinc-500 text-sm italic">No images in this collection.</p>`;
         }
-
-        document.getElementById("post-modal").classList.remove("hidden");
-        document.body.style.overflow = "hidden";
-      }
-
-      function closePostModal() {
-        document.getElementById("post-modal").classList.add("hidden");
-        document.body.style.overflow = "";
-        navigateTo("");
       }
 
       function openLightbox(postId, index) {
@@ -1703,9 +1673,9 @@
             })),
           };
         }
-        const saved = await savePostToCloud(postData);
 
-        if (!saved) return;
+        await savePostToCloud(postData);
+        await fetchPostsFromCloud();
 
         showToast(
           editingId ? "Post updated on cloud!" : "New post published to cloud!",
