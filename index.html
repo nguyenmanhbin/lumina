@@ -40,6 +40,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <style>
+      /* THEME VARIABLES: NIGHT (DEFAULT) */
       :root {
         --bg: #070708;
         --surface: #0f1012;
@@ -47,7 +48,20 @@
         --ink: #f4f0e8;
         --mute: #8e8980;
         --brass: #d7b477;
+        --card-bg: #0a0b0c;
       }
+
+      /* THEME VARIABLES: LIGHT MODE */
+      html.light {
+        --bg: #f8f6f0;
+        --surface: #ffffff;
+        --line: rgba(20, 20, 20, 0.08);
+        --ink: #111113;
+        --mute: #66635c;
+        --brass: #a88242;
+        --card-bg: #ffffff;
+      }
+
       html {
         scroll-behavior: smooth;
       }
@@ -68,7 +82,25 @@
             transparent 50%
           );
         background-attachment: fixed;
+        transition:
+          background-color 0.4s ease,
+          color 0.4s ease;
       }
+
+      html.light body {
+        background-image:
+          radial-gradient(
+            circle at 50% 0%,
+            rgba(168, 130, 66, 0.04) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            circle at 85% 30%,
+            rgba(220, 215, 205, 0.4) 0%,
+            transparent 50%
+          );
+      }
+
       body::before {
         content: "";
         position: fixed;
@@ -95,6 +127,9 @@
       ::-webkit-scrollbar-thumb {
         background: #222428;
         border-radius: 3px;
+      }
+      html.light ::-webkit-scrollbar-thumb {
+        background: #d0c8b8;
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #353840;
@@ -149,6 +184,12 @@
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border: 1px solid var(--line);
+        transition:
+          background-color 0.4s ease,
+          border-color 0.4s ease;
+      }
+      html.light .glass-panel {
+        background: rgba(255, 255, 255, 0.85);
       }
 
       /* Frame Effect */
@@ -156,18 +197,19 @@
         position: relative;
         overflow: hidden;
         border-radius: 8px;
-        background: #0a0b0c;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        box-shadow: 0 16px 40px -20px rgba(0, 0, 0, 0.9);
+        background: var(--card-bg);
+        border: 1px solid var(--line);
+        box-shadow: 0 16px 40px -20px rgba(0, 0, 0, 0.3);
         transition:
           border-color 0.4s ease,
-          box-shadow 0.4s ease;
+          box-shadow 0.4s ease,
+          background-color 0.4s ease;
       }
       .card:hover .frame {
-        border-color: rgba(215, 180, 119, 0.3);
+        border-color: rgba(215, 180, 119, 0.4);
         box-shadow:
-          0 24px 50px -15px rgba(0, 0, 0, 0.95),
-          0 0 20px rgba(215, 180, 119, 0.05);
+          0 24px 50px -15px rgba(0, 0, 0, 0.4),
+          0 0 20px rgba(215, 180, 119, 0.08);
       }
       .frame img {
         transition:
@@ -189,6 +231,13 @@
         opacity: 0.4;
         transition: opacity 0.45s ease;
       }
+      html.light .frame::after {
+        background: linear-gradient(
+          180deg,
+          transparent 50%,
+          rgba(0, 0, 0, 0.65) 100%
+        );
+      }
       .card:hover .frame::after {
         opacity: 0.9;
       }
@@ -203,7 +252,7 @@
         font-size: 12px;
         letter-spacing: 0.05em;
         text-transform: uppercase;
-        color: var(--ink);
+        color: #f4f0e8;
         display: flex;
         gap: 0.6rem;
         align-items: center;
@@ -228,12 +277,11 @@
   >
     <!-- TOP NAVBAR -->
     <header
-      class="sticky top-0 z-40 bg-[#070708]/80 backdrop-blur-2xl border-b border-[var(--line)] transition-all"
+      class="sticky top-0 z-40 bg-[var(--bg)]/80 backdrop-blur-2xl border-b border-[var(--line)] transition-all"
     >
       <div
         class="max-w-[1600px] mx-auto px-6 sm:px-10 h-20 flex items-center justify-between"
       >
-        <!-- Logo -->
         <!-- Logo -->
         <a
           href="#"
@@ -244,7 +292,6 @@
           class="flex items-center gap-3.5 group"
           aria-label="Lumina home"
         >
-          <!-- Thay thế bằng link ảnh logo của bạn -->
           <img
             src="logo.png"
             alt="Lumina Logo"
@@ -263,10 +310,23 @@
         </a>
 
         <!-- Header Actions -->
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-3 sm:space-x-4">
+          <!-- Nút chuyển đổi Dark/Light Mode -->
+          <button
+            onclick="toggleTheme()"
+            class="w-10 h-10 rounded-full border border-[var(--line)] hover:border-amber-500/40 bg-[var(--surface)] text-[var(--ink)] flex items-center justify-center transition shadow-sm"
+            title="Toggle Light/Dark Mode"
+            aria-label="Toggle Theme"
+          >
+            <i
+              id="theme-icon"
+              class="fa-solid fa-moon text-xs text-[var(--brass)]"
+            ></i>
+          </button>
+
           <button
             onclick="toggleFilterBar()"
-            class="px-4 py-2 rounded-full border border-zinc-800 hover:border-amber-500/40 bg-zinc-900/60 text-xs tracking-wider uppercase text-zinc-300 hover:text-white transition flex items-center gap-2"
+            class="px-4 py-2 rounded-full border border-[var(--line)] hover:border-amber-500/40 bg-[var(--surface)] text-xs tracking-wider uppercase text-[var(--ink)] transition flex items-center gap-2 shadow-sm"
           >
             <i class="fa-solid fa-sliders text-[10px] text-[var(--brass)]"></i>
             <span>Filter</span>
@@ -289,9 +349,9 @@
       class="fixed top-24 right-6 z-50 flex flex-col space-y-3 pointer-events-none"
     ></div>
 
-    <!-- MAIN CONTENT CONTAINER (WIDER MAX-WIDTH) -->
+    <!-- MAIN CONTENT CONTAINER -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-6 sm:px-10 py-10">
-      <!-- ==================== VIEWER SITE (Home Grid) ==================== -->
+      <!-- VIEWER SITE (Home Grid) -->
       <section id="site-viewer" class="space-y-14">
         <!-- Hero Section -->
         <div
@@ -339,20 +399,20 @@
           <div class="flex flex-col sm:flex-row gap-4">
             <div class="relative flex-grow">
               <i
-                class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"
+                class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-[var(--mute)] text-xs"
               ></i>
               <input
                 type="text"
                 id="viewer-search-input"
                 oninput="renderViewerPosts()"
                 placeholder="Search series title, story or location..."
-                class="w-full pl-11 pr-4 py-3 bg-zinc-950/90 border border-zinc-800/90 rounded-xl text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-amber-500/50 text-xs transition"
+                class="w-full pl-11 pr-4 py-3 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-[var(--ink)] placeholder-[var(--mute)] focus:outline-none focus:border-amber-500/50 text-xs transition"
               />
             </div>
             <select
               id="viewer-category-select"
               onchange="renderViewerPosts()"
-              class="px-5 py-3 bg-zinc-950/90 border border-zinc-800/90 rounded-xl text-zinc-200 text-xs focus:outline-none focus:border-amber-500/50 transition cursor-pointer"
+              class="px-5 py-3 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-[var(--ink)] text-xs focus:outline-none focus:border-amber-500/50 transition cursor-pointer"
             >
               <option value="ALL">All Categories</option>
               <option value="Nature">Nature</option>
@@ -374,21 +434,21 @@
         <!-- Empty State -->
         <div id="viewer-empty-state" class="hidden text-center py-28 space-y-4">
           <div
-            class="w-16 h-16 bg-zinc-900/80 border border-zinc-800 rounded-full flex items-center justify-center mx-auto text-zinc-500 text-xl"
+            class="w-16 h-16 bg-[var(--surface)] border border-[var(--line)] rounded-full flex items-center justify-center mx-auto text-[var(--mute)] text-xl"
           >
             <i class="fa-regular fa-image"></i>
           </div>
-          <h3 class="text-lg font-medium text-zinc-300 font-display">
+          <h3 class="text-lg font-medium text-[var(--ink)] font-display">
             No photography series found
           </h3>
-          <p class="text-zinc-500 text-xs max-w-sm mx-auto">
+          <p class="text-[var(--mute)] text-xs max-w-sm mx-auto">
             Try adjusting your search query or selecting a different category
             filter.
           </p>
         </div>
       </section>
 
-      <!-- ==================== DEDICATED POST DETAIL PAGE (FULL BLEED) ==================== -->
+      <!-- DEDICATED POST DETAIL PAGE -->
       <section
         id="site-post-detail"
         class="hidden space-y-14 max-w-6xl mx-auto pt-4"
@@ -430,7 +490,6 @@
           </div>
         </div>
 
-        <!-- Photo Collection Full Layout -->
         <div class="space-y-10">
           <div
             class="flex items-center justify-between text-xs font-semibold uppercase tracking-widest text-[var(--mute)]"
@@ -438,7 +497,7 @@
             <span
               >Series Photographs (<span id="detail-img-count">0</span>)</span
             >
-            <span class="hidden sm:inline text-zinc-500"
+            <span class="hidden sm:inline text-[var(--mute)]"
               ><i class="fa-solid fa-expand mr-1.5 text-[10px]"></i>Click image
               for lightbox</span
             >
@@ -451,26 +510,26 @@
         </div>
       </section>
 
-      <!-- ==================== ADMIN LOGIN SECTION ==================== -->
+      <!-- ADMIN LOGIN SECTION -->
       <section
         id="admin-login-section"
         class="hidden py-20 flex items-center justify-center min-h-[50vh]"
       >
         <div
-          class="w-full max-w-md bg-zinc-900/90 border border-zinc-800 rounded-3xl p-8 sm:p-10 space-y-8 shadow-2xl backdrop-blur-xl"
+          class="w-full max-w-md bg-[var(--surface)] border border-[var(--line)] rounded-3xl p-8 sm:p-10 space-y-8 shadow-2xl backdrop-blur-xl"
         >
           <div class="space-y-2 text-center">
-            <h2 class="text-2xl font-display font-light text-white">
+            <h2 class="text-2xl font-display font-light text-[var(--ink)]">
               Administrator Access
             </h2>
-            <p class="text-xs text-zinc-400">
+            <p class="text-xs text-[var(--mute)]">
               Sign in to manage photography series and upload works
             </p>
           </div>
           <form onsubmit="handleAdminLogin(event)" class="space-y-5">
             <div class="space-y-1.5">
               <label
-                class="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest"
+                class="text-[10px] font-semibold text-[var(--mute)] uppercase tracking-widest"
                 >Username / Email</label
               >
               <input
@@ -479,12 +538,12 @@
                 autocomplete="username"
                 placeholder="admin@lumina.art"
                 required
-                class="w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 focus:outline-none focus:border-amber-500/50 text-xs transition"
+                class="w-full px-4 py-3 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-[var(--ink)] focus:outline-none focus:border-amber-500/50 text-xs transition"
               />
             </div>
             <div class="space-y-1.5">
               <label
-                class="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest"
+                class="text-[10px] font-semibold text-[var(--mute)] uppercase tracking-widest"
                 >Password</label
               >
               <input
@@ -492,7 +551,7 @@
                 id="admin-password"
                 required
                 placeholder="••••••••"
-                class="w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 focus:outline-none focus:border-amber-500/50 text-xs transition"
+                class="w-full px-4 py-3 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-[var(--ink)] focus:outline-none focus:border-amber-500/50 text-xs transition"
               />
             </div>
             <div
@@ -503,7 +562,7 @@
             </div>
             <button
               type="submit"
-              class="w-full py-3.5 rounded-xl bg-[var(--ink)] hover:bg-white text-zinc-950 font-semibold text-xs tracking-wider uppercase transition shadow-lg"
+              class="w-full py-3.5 rounded-xl bg-[var(--ink)] hover:opacity-90 text-[var(--bg)] font-semibold text-xs tracking-wider uppercase transition shadow-lg"
             >
               Sign In
             </button>
@@ -511,16 +570,16 @@
         </div>
       </section>
 
-      <!-- ==================== ADMIN DASHBOARD SECTION ==================== -->
+      <!-- ADMIN DASHBOARD SECTION -->
       <section id="site-admin" class="hidden space-y-10">
         <div
-          class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-zinc-800/80 pb-6"
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-[var(--line)] pb-6"
         >
           <div>
-            <h2 class="text-3xl font-display font-light text-white">
+            <h2 class="text-3xl font-display font-light text-[var(--ink)]">
               Admin Dashboard
             </h2>
-            <p class="text-xs text-zinc-400">
+            <p class="text-xs text-[var(--mute)]">
               Upload new photo collections and manage public portfolio
             </p>
           </div>
@@ -528,14 +587,14 @@
             <button
               onclick="setAdminTab('create')"
               id="tab-btn-create"
-              class="px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition bg-zinc-100 text-zinc-950 shadow-md"
+              class="px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition bg-[var(--brass)] text-zinc-950 shadow-md"
             >
               Create Post
             </button>
             <button
               onclick="setAdminTab('manage')"
               id="tab-btn-manage"
-              class="px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white"
+              class="px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition bg-[var(--surface)] border border-[var(--line)] text-[var(--mute)] hover:text-[var(--ink)]"
             >
               Manage Posts
             </button>
@@ -547,15 +606,15 @@
           <form
             id="post-form"
             onsubmit="handlePublishPost(event)"
-            class="bg-zinc-900/50 border border-zinc-800/90 rounded-3xl p-8 space-y-8 shadow-xl backdrop-blur-lg"
+            class="bg-[var(--surface)] border border-[var(--line)] rounded-3xl p-8 space-y-8 shadow-xl backdrop-blur-lg"
           >
             <input type="hidden" id="editing-post-id" value="" />
             <div
-              class="flex items-center justify-between border-b border-zinc-800 pb-4"
+              class="flex items-center justify-between border-b border-[var(--line)] pb-4"
             >
               <h3
                 id="form-title-heading"
-                class="text-base font-medium text-white font-display"
+                class="text-base font-medium text-[var(--ink)] font-display"
               >
                 Post Details
               </h3>
@@ -572,7 +631,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div class="sm:col-span-2 space-y-2">
                 <label
-                  class="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest"
+                  class="text-[10px] font-semibold text-[var(--mute)] uppercase tracking-widest"
                   >Series Title *</label
                 >
                 <input
@@ -580,18 +639,18 @@
                   id="post-title"
                   required
                   placeholder="e.g. Alpine Sunrise"
-                  class="w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 focus:outline-none focus:border-amber-500/50 text-xs transition"
+                  class="w-full px-4 py-3 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-[var(--ink)] focus:outline-none focus:border-amber-500/50 text-xs transition"
                 />
               </div>
               <div class="space-y-2">
                 <label
-                  class="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest"
+                  class="text-[10px] font-semibold text-[var(--mute)] uppercase tracking-widest"
                   >Category *</label
                 >
                 <select
                   id="post-category"
                   required
-                  class="w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 focus:outline-none focus:border-amber-500/50 text-xs transition"
+                  class="w-full px-4 py-3 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-[var(--ink)] focus:outline-none focus:border-amber-500/50 text-xs transition"
                 >
                   <option value="Nature">Nature</option>
                   <option value="Urban">Urban</option>
@@ -602,25 +661,25 @@
               </div>
               <div class="space-y-2">
                 <label
-                  class="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest"
+                  class="text-[10px] font-semibold text-[var(--mute)] uppercase tracking-widest"
                   >Date</label
                 >
                 <input
                   type="date"
                   id="post-date"
-                  class="w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 focus:outline-none focus:border-amber-500/50 text-xs transition"
+                  class="w-full px-4 py-3 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-[var(--ink)] focus:outline-none focus:border-amber-500/50 text-xs transition"
                 />
               </div>
               <div class="sm:col-span-2 space-y-2">
                 <label
-                  class="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest"
+                  class="text-[10px] font-semibold text-[var(--mute)] uppercase tracking-widest"
                   >Story / Description</label
                 >
                 <textarea
                   id="post-desc"
                   rows="4"
                   placeholder="Background narrative, location details or technical notes..."
-                  class="w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 focus:outline-none focus:border-amber-500/50 text-xs transition resize-none"
+                  class="w-full px-4 py-3 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-[var(--ink)] focus:outline-none focus:border-amber-500/50 text-xs transition resize-none"
                 ></textarea>
               </div>
             </div>
@@ -628,21 +687,21 @@
             <!-- Upload Zone -->
             <div class="space-y-4">
               <label
-                class="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest block"
+                class="text-[10px] font-semibold text-[var(--mute)] uppercase tracking-widest block"
                 >Photographs *</label
               >
               <div
                 id="drop-zone"
                 onclick="document.getElementById('file-input').click()"
-                class="border border-dashed border-zinc-700 hover:border-amber-500/50 bg-zinc-950/80 rounded-2xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center space-y-3"
+                class="border border-dashed border-[var(--line)] hover:border-amber-500/50 bg-[var(--bg)] rounded-2xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center space-y-3"
               >
                 <i
-                  class="fa-solid fa-cloud-arrow-up text-zinc-400 text-2xl"
+                  class="fa-solid fa-cloud-arrow-up text-[var(--mute)] text-2xl"
                 ></i>
-                <p class="text-xs text-zinc-300 font-medium">
+                <p class="text-xs text-[var(--ink)] font-medium">
                   Click or drag &amp; drop image files
                 </p>
-                <p class="text-[10px] text-zinc-500">
+                <p class="text-[10px] text-[var(--mute)]">
                   Supports JPG, PNG, WEBP high-resolution files
                 </p>
                 <input
@@ -656,7 +715,7 @@
               </div>
               <div id="queue-container" class="space-y-3 pt-2">
                 <div
-                  class="flex items-center justify-between text-xs text-zinc-400"
+                  class="flex items-center justify-between text-xs text-[var(--mute)]"
                 >
                   <span>Queued Images (<span id="queue-count">0</span>)</span>
                   <button
@@ -675,19 +734,19 @@
             </div>
 
             <div
-              class="flex justify-end space-x-3 pt-4 border-t border-zinc-800"
+              class="flex justify-end space-x-3 pt-4 border-t border-[var(--line)]"
             >
               <button
                 type="button"
                 onclick="resetForm()"
-                class="px-5 py-2.5 border border-zinc-800 rounded-xl text-xs text-zinc-400 hover:text-white transition"
+                class="px-5 py-2.5 border border-[var(--line)] rounded-xl text-xs text-[var(--mute)] hover:text-[var(--ink)] transition"
               >
                 Reset
               </button>
               <button
                 type="submit"
                 id="submit-btn"
-                class="px-6 py-2.5 bg-[var(--ink)] hover:bg-white text-zinc-950 font-semibold text-xs tracking-wider uppercase rounded-xl transition shadow-lg"
+                class="px-6 py-2.5 bg-[var(--ink)] hover:opacity-90 text-[var(--bg)] font-semibold text-xs tracking-wider uppercase rounded-xl transition shadow-lg"
               >
                 <span id="submit-btn-text">Publish Post</span>
               </button>
@@ -698,17 +757,17 @@
         <!-- Admin Tab 2: Manage List -->
         <div id="admin-tab-manage" class="hidden">
           <div
-            class="bg-zinc-900/50 border border-zinc-800/90 rounded-3xl overflow-hidden shadow-xl backdrop-blur-lg"
+            class="bg-[var(--surface)] border border-[var(--line)] rounded-3xl overflow-hidden shadow-xl backdrop-blur-lg"
           >
             <div
-              class="p-5 border-b border-zinc-800 text-xs font-semibold tracking-wider text-zinc-300 uppercase"
+              class="p-5 border-b border-[var(--line)] text-xs font-semibold tracking-wider text-[var(--ink)] uppercase"
             >
               Published Collections (<span id="admin-posts-count">0</span>)
             </div>
             <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs text-zinc-300">
+              <table class="w-full text-left text-xs text-[var(--ink)]">
                 <thead
-                  class="bg-zinc-950 text-zinc-400 uppercase text-[10px] tracking-widest border-b border-zinc-800"
+                  class="bg-[var(--bg)] text-[var(--mute)] uppercase text-[10px] tracking-widest border-b border-[var(--line)]"
                 >
                   <tr>
                     <th class="px-6 py-4">Title</th>
@@ -721,7 +780,7 @@
                 </thead>
                 <tbody
                   id="admin-table-body"
-                  class="divide-y divide-zinc-800/60"
+                  class="divide-y divide-[var(--line)]"
                 ></tbody>
               </table>
             </div>
@@ -731,7 +790,7 @@
     </main>
 
     <!-- FOOTER -->
-    <footer class="border-t border-[var(--line)] mt-32 bg-[#050506]">
+    <footer class="border-t border-[var(--line)] mt-32 bg-[var(--surface)]">
       <div
         class="max-w-[1600px] mx-auto px-6 sm:px-10 py-16 grid sm:grid-cols-2 gap-8 items-end"
       >
@@ -854,7 +913,6 @@
       const auth = firebase.auth();
       const db = firebase.firestore();
 
-      const SAMPLE_POSTS = [];
       const ADMIN_CREDENTIALS = { username: "admin", password: "admin123" };
 
       let posts = JSON.parse(localStorage.getItem("lumina_posts_cache")) || [];
@@ -866,7 +924,49 @@
       let currentLightboxIndex = 0;
       let isZoomed = false;
 
+      // ================= QUẢN LÝ GIAO DIỆN (THEME TOGGLE) =================
+      function initTheme() {
+        const savedTheme = localStorage.getItem("lumina_theme") || "dark";
+        const htmlEl = document.documentElement;
+        const iconEl = document.getElementById("theme-icon");
+
+        if (savedTheme === "light") {
+          htmlEl.classList.add("light");
+          htmlEl.classList.remove("dark");
+          if (iconEl)
+            iconEl.className = "fa-solid fa-sun text-xs text-[var(--brass)]";
+        } else {
+          htmlEl.classList.add("dark");
+          htmlEl.classList.remove("light");
+          if (iconEl)
+            iconEl.className = "fa-solid fa-moon text-xs text-[var(--brass)]";
+        }
+      }
+
+      function toggleTheme() {
+        const htmlEl = document.documentElement;
+        const iconEl = document.getElementById("theme-icon");
+
+        if (htmlEl.classList.contains("light")) {
+          htmlEl.classList.remove("light");
+          htmlEl.classList.add("dark");
+          localStorage.setItem("lumina_theme", "dark");
+          if (iconEl)
+            iconEl.className = "fa-solid fa-moon text-xs text-[var(--brass)]";
+          showToast("Switched to Night Mode");
+        } else {
+          htmlEl.classList.remove("dark");
+          htmlEl.classList.add("light");
+          localStorage.setItem("lumina_theme", "light");
+          if (iconEl)
+            iconEl.className = "fa-solid fa-sun text-xs text-[var(--brass)]";
+          showToast("Switched to Light Mode");
+        }
+      }
+
       async function initApp() {
+        initTheme(); // Khởi tạo theme ngay khi tải trang
+
         if (localStorage.getItem("lumina_admin_auth") === "true") {
           isAdminLoggedIn = true;
         }
@@ -1024,7 +1124,7 @@
             const isActive = selectedCategoryFilter === cat;
             const activeClass = isActive
               ? "bg-[var(--brass)] text-zinc-950 font-semibold shadow-md"
-              : "bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-zinc-200";
+              : "bg-[var(--surface)] border border-[var(--line)] text-[var(--mute)] hover:text-[var(--ink)]";
             return `<button onclick="filterCategory('${cat}')" class="px-4 py-2 rounded-full text-xs transition ${activeClass}">
                     ${cat === "ALL" ? "All Categories" : cat}
                 </button>`;
@@ -1065,7 +1165,7 @@
             `navigateTo('post-${latest.id.replace("post-", "")}');return false;`,
           );
           feat.innerHTML = `
-            <div class="frame aspect-[16/10] sm:aspect-[16/9] group border border-zinc-800/80 rounded-2xl overflow-hidden shadow-2xl">
+            <div class="frame aspect-[16/10] sm:aspect-[16/9] group border border-[var(--line)] rounded-2xl overflow-hidden shadow-2xl">
               <img src="${latest.images[0].url}" alt="${esc(latest.title)}" class="w-full h-full object-cover transition duration-1000 group-hover:scale-105" loading="lazy">
               <div class="absolute inset-x-0 bottom-0 z-[2] p-6 sm:p-8 bg-gradient-to-t from-black/95 via-black/50 to-transparent">
                 <span class="text-xs font-semibold uppercase tracking-widest text-[var(--brass)] mb-2 block">Featured Series • ${latest.category}</span>
@@ -1074,8 +1174,8 @@
             </div>`;
         } else {
           feat.innerHTML = `
-            <div class="frame aspect-[16/9] flex items-center justify-center bg-zinc-900/40 border border-zinc-800/80 rounded-2xl">
-              <p class="text-xs tracking-widest uppercase text-zinc-500">No Featured Works</p>
+            <div class="frame aspect-[16/9] flex items-center justify-center bg-[var(--surface)] border border-[var(--line)] rounded-2xl">
+              <p class="text-xs tracking-widest uppercase text-[var(--mute)]">No Featured Works</p>
             </div>`;
         }
 
@@ -1149,7 +1249,7 @@
               <div class="pt-4 space-y-1.5">
                 <h3 class="font-display text-2xl font-normal leading-snug text-[var(--ink)] group-hover:text-[var(--brass)] transition-colors">${esc(post.title)}</h3>
                 <p class="text-xs text-[var(--mute)] line-clamp-2 leading-relaxed font-light">${esc(post.description || "No description provided.")}</p>
-                <p class="pt-1 text-[11px] tracking-wider uppercase text-zinc-500">${esc(post.category)} • ${post.date} • ${post.views || 0} views</p>
+                <p class="pt-1 text-[11px] tracking-wider uppercase text-[var(--mute)]">${esc(post.category)} • ${post.date} • ${post.views || 0} views</p>
               </div>
             </article>
           `;
@@ -1189,7 +1289,7 @@
           galleryGrid.innerHTML = post.images
             .map(
               (img, index) => `
-            <div onclick="openLightbox('${post.id}', ${index})" class="group relative rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-800/80 cursor-pointer shadow-2xl transition hover:border-[var(--brass)]">
+            <div onclick="openLightbox('${post.id}', ${index})" class="group relative rounded-2xl overflow-hidden bg-[var(--surface)] border border-[var(--line)] cursor-pointer shadow-2xl transition hover:border-[var(--brass)]">
               <img src="${img.url}" alt="${esc(post.title)} - Work ${index + 1}" class="w-full h-auto object-cover max-h-[85vh] mx-auto transition duration-700 group-hover:scale-[1.01]" loading="lazy">
               <div class="absolute bottom-5 right-5 bg-black/80 backdrop-blur-md px-4 py-2 rounded-full text-xs text-zinc-300 opacity-0 group-hover:opacity-100 transition border border-white/10">
                 <i class="fa-solid fa-expand mr-2 text-[10px]"></i> View Fullscreen
@@ -1199,7 +1299,7 @@
             )
             .join("");
         } else {
-          galleryGrid.innerHTML = `<p class="text-zinc-500 text-sm italic">No works available in this series.</p>`;
+          galleryGrid.innerHTML = `<p class="text-[var(--mute)] text-sm italic">No works available in this series.</p>`;
         }
       }
 
@@ -1280,16 +1380,16 @@
           secCreate.classList.remove("hidden");
           secManage.classList.add("hidden");
           btnCreate.className =
-            "px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition bg-zinc-100 text-zinc-950 shadow-md";
+            "px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition bg-[var(--brass)] text-zinc-950 shadow-md";
           btnManage.className =
-            "px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white";
+            "px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition bg-[var(--surface)] border border-[var(--line)] text-[var(--mute)] hover:text-[var(--ink)]";
         } else {
           secManage.classList.remove("hidden");
           secCreate.classList.add("hidden");
           btnManage.className =
-            "px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition bg-zinc-100 text-zinc-950 shadow-md";
+            "px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition bg-[var(--brass)] text-zinc-950 shadow-md";
           btnCreate.className =
-            "px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white";
+            "px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition bg-[var(--surface)] border border-[var(--line)] text-[var(--mute)] hover:text-[var(--ink)]";
           renderAdminTable();
         }
       }
@@ -1336,13 +1436,13 @@
         const queueList = document.getElementById("queue-list");
         document.getElementById("queue-count").innerText = uploadQueue.length;
         if (uploadQueue.length === 0) {
-          queueList.innerHTML = `<p class="text-xs text-zinc-500 italic col-span-full">No photographs queued.</p>`;
+          queueList.innerHTML = `<p class="text-xs text-[var(--mute)] italic col-span-full">No photographs queued.</p>`;
           return;
         }
         queueList.innerHTML = uploadQueue
           .map(
             (item, idx) => `
-          <div class="relative group aspect-square rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800">
+          <div class="relative group aspect-square rounded-xl overflow-hidden bg-[var(--bg)] border border-[var(--line)]">
             <img src="${item.url}" class="w-full h-full object-cover">
             <button type="button" onclick="removeFromQueue(${idx})" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-[10px] shadow-lg">
               <i class="fa-solid fa-xmark"></i>
@@ -1468,7 +1568,7 @@
         document.getElementById("admin-posts-count").innerText = posts.length;
 
         if (posts.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-zinc-500 italic">No published series found.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-[var(--mute)] italic">No published series found.</td></tr>`;
           return;
         }
 
@@ -1479,17 +1579,17 @@
                 ? post.images[0].url
                 : "https://placehold.co/100x100/0d0e10/ffffff?text=No+Img";
             return `
-            <tr class="hover:bg-zinc-900/40 transition">
+            <tr class="hover:bg-[var(--surface)] transition">
               <td class="px-6 py-4 flex items-center space-x-3">
-                <img src="${cover}" class="w-10 h-10 object-cover rounded-lg bg-zinc-950 border border-zinc-800">
-                <span class="font-medium text-zinc-200 line-clamp-1 font-display">${post.title}</span>
+                <img src="${cover}" class="w-10 h-10 object-cover rounded-lg bg-[var(--bg)] border border-[var(--line)]">
+                <span class="font-medium text-[var(--ink)] line-clamp-1 font-display">${post.title}</span>
               </td>
-              <td class="px-6 py-4 text-zinc-400">${post.category}</td>
-              <td class="px-6 py-4 text-zinc-300 font-semibold">${post.images ? post.images.length : 0}</td>
-              <td class="px-6 py-4">${post.isPublic !== false ? '<span class="text-emerald-400">Public</span>' : '<span class="text-zinc-500">Hidden</span>'}</td>
-              <td class="px-6 py-4 text-zinc-500">${post.date}</td>
+              <td class="px-6 py-4 text-[var(--mute)]">${post.category}</td>
+              <td class="px-6 py-4 text-[var(--ink)] font-semibold">${post.images ? post.images.length : 0}</td>
+              <td class="px-6 py-4">${post.isPublic !== false ? '<span class="text-emerald-500 font-medium">Public</span>' : '<span class="text-[var(--mute)]">Hidden</span>'}</td>
+              <td class="px-6 py-4 text-[var(--mute)]">${post.date}</td>
               <td class="px-6 py-4 text-right space-x-2">
-                <button onclick="editPost('${post.id}')" class="p-2 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-white"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button onclick="editPost('${post.id}')" class="p-2 rounded-lg hover:bg-[var(--bg)] text-[var(--mute)] hover:text-[var(--ink)]"><i class="fa-solid fa-pen-to-square"></i></button>
                 <button onclick="deletePost('${post.id}')" class="p-2 rounded-lg hover:bg-rose-500/20 text-rose-400"><i class="fa-regular fa-trash-can"></i></button>
               </td>
             </tr>
@@ -1507,7 +1607,7 @@
       function showToast(message, type = "success") {
         const container = document.getElementById("toast-container");
         const toast = document.createElement("div");
-        toast.className = `pointer-events-auto px-5 py-3 rounded-2xl border border-zinc-800 bg-zinc-900/95 text-zinc-100 text-xs shadow-2xl flex items-center gap-3 transform transition duration-300 translate-y-2 opacity-0 backdrop-blur-xl`;
+        toast.className = `pointer-events-auto px-5 py-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] text-xs shadow-2xl flex items-center gap-3 transform transition duration-300 translate-y-2 opacity-0 backdrop-blur-xl`;
         toast.innerHTML = `<i class="fa-solid ${type === "error" ? "fa-circle-exclamation text-rose-400" : "fa-circle-check text-amber-400"}"></i><span>${message}</span>`;
         container.appendChild(toast);
         setTimeout(
