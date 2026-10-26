@@ -690,8 +690,8 @@
                   Click or drag &amp; drop image files
                 </p>
                 <p class="text-[10px] text-[var(--mute)]">
-                  Supports JPG, PNG, WEBP high-resolution files (Có thể chọn
-                  nhiều ảnh cùng lúc)
+                  Supports JPG, PNG, WEBP high-resolution files (Multiple images
+                  can be selected at once)
                 </p>
                 <input
                   type="file"
@@ -721,13 +721,13 @@
                 ></div>
               </div>
             </div>
-            <!-- THANH TIẾN TRÌNH UPLOAD (ĐẶT Ở ĐÂY CHO ĐẸP VÀ DỄ NHÌN) -->
+            <!-- UPLOAD PROGRESS BAR -->
             <div id="upload-progress-container" class="hidden space-y-2 py-2">
               <div class="flex justify-between text-xs text-[var(--mute)]">
                 <span
                   id="upload-status-text"
                   class="font-medium text-[var(--ink)]"
-                  >Đang chuẩn bị tải lên...</span
+                  >Preparing upload...</span
                 >
                 <span id="upload-percent">0%</span>
               </div>
@@ -1466,7 +1466,7 @@
         document.getElementById("file-input").value = "";
       }
 
-      // Cấu hình thông tin Cloudinary của bạn
+      // Cloudinary configuration
       const CLOUDINARY_CLOUD_NAME = "l3symcza";
       const CLOUDINARY_UPLOAD_PRESET = "lumina_preset";
 
@@ -1486,7 +1486,7 @@
         const progressText = document.getElementById("upload-status-text");
         const progressPercent = document.getElementById("upload-percent");
 
-        // Hiển thị thanh tiến trình lên
+        // Show progress bar
         progressContainer.classList.remove("hidden");
 
         const editingId = document.getElementById("editing-post-id").value;
@@ -1498,7 +1498,10 @@
         const desc = document.getElementById("post-desc").value.trim();
 
         if (!title || uploadQueue.length === 0) {
-          showToast("Vui lòng nhập tiêu đề và chọn ít nhất một ảnh!", "error");
+          showToast(
+            "Please enter a title and select at least one image!",
+            "error",
+          );
           submitBtn.disabled = false;
           submitBtn.style.opacity = "1";
           progressContainer.classList.add("hidden");
@@ -1513,15 +1516,15 @@
           for (let i = 0; i < uploadQueue.length; i++) {
             const item = uploadQueue[i];
             if (item.file) {
-              // Cập nhật text trạng thái số lượng ảnh đang chạy
-              progressText.innerText = `Đang tải ảnh ${completedFiles + 1} / ${totalFiles}`;
+              // Update upload status count text
+              progressText.innerText = `Uploading image ${completedFiles + 1} / ${totalFiles}`;
 
               const formData = new FormData();
               formData.append("file", item.file);
               formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-              formData.append("folder", "lumina_portfolio"); // Tự động gom vào thư mục quản lý
+              formData.append("folder", "lumina_portfolio"); // Automatically group into management folder
 
-              // Dùng Promise kết hợp XMLHttpRequest để theo dõi tiến trình từng file
+              // Use Promise combined with XMLHttpRequest to track individual file progress
               const secureUrl = await new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
                 xhr.open(
@@ -1551,7 +1554,7 @@
 
               completedFiles++;
 
-              // Tính toán phần trăm tổng thể để chạy thanh progress bar
+              // Calculate overall percentage for progress bar
               const percent = Math.round((completedFiles / totalFiles) * 100);
               progressBar.style.width = percent + "%";
               progressPercent.innerText = percent + "%";
@@ -1560,7 +1563,7 @@
             }
           }
 
-          progressText.innerText = "Đang lưu bài viết lên cơ sở dữ liệu...";
+          progressText.innerText = "Saving post to database...";
           let targetId = editingId || "post-" + Date.now();
           const postData = {
             id: targetId,
@@ -1576,14 +1579,14 @@
           await savePostToCloud(postData);
           await fetchPostsFromCloud();
           resetForm();
-          showToast("Đăng series thành công!");
+          showToast("Series published successfully!");
 
           setTimeout(() => {
             navigateTo(`post-${targetId.replace("post-", "")}`);
           }, 500);
         } catch (error) {
           console.error("Error:", error);
-          showToast("Có lỗi xảy ra khi tải ảnh lên!", "error");
+          showToast("An error occurred while uploading images!", "error");
         } finally {
           submitBtn.disabled = false;
           submitBtn.style.opacity = "1";
@@ -1686,23 +1689,24 @@
       window.onload = function () {
         initApp();
       };
-      // Hàm trích xuất public_id từ URL của Cloudinary
+
+      // Function to extract public_id from Cloudinary URL
       function getPublicIdFromCloudinaryUrl(url) {
         try {
-          // URL Cloudinary mẫu: https://res.cloudinary.com/.../upload/v12345678/lumina_portfolio/image_name.jpg
+          // Sample Cloudinary URL: https://res.cloudinary.com/.../upload/v12345678/lumina_portfolio/image_name.jpg
           const parts = url.split("/upload/");
           if (parts.length < 2) return null;
 
-          let pathPart = parts[1]; // v12345678/lumina_portfolio/image_name.jpg hoặc lumina_portfolio/image_name.jpg
-          // Bỏ phần version (bắt đầu bằng v[số]/ nếu có)
+          let pathPart = parts[1]; // v12345678/lumina_portfolio/image_name.jpg or lumina_portfolio/image_name.jpg
+          // Remove version (starting with v[number]/ if present)
           pathPart = pathPart.replace(/^v\d+\//, "");
 
-          // Bỏ phần mở rộng (đuôi file như .jpg, .png, .webp)
+          // Remove file extension (like .jpg, .png, .webp)
           const lastDotIndex = pathPart.lastIndexOf(".");
           if (lastDotIndex !== -1) {
             pathPart = pathPart.substring(0, lastDotIndex);
           }
-          return pathPart; // Kết quả trả về dạng: lumina_portfolio/image_name
+          return pathPart; // Returns format: lumina_portfolio/image_name
         } catch (e) {
           console.error("Error parsing public_id:", e);
           return null;
@@ -1712,7 +1716,7 @@
       async function deletePostFromCloud(postId) {
         if (
           !confirm(
-            "Bạn có chắc chắn muốn xóa vĩnh viễn series này và toàn bộ ảnh trên Cloudinary không?",
+            "Are you sure you want to permanently delete this series and all images on Cloudinary?",
           )
         )
           return;
@@ -1725,15 +1729,15 @@
             postToDelete.images &&
             postToDelete.images.length > 0
           ) {
-            // Lấy danh sách public_id của tất cả ảnh trong bài viết
+            // Get list of public_ids for all images in the post
             const publicIds = postToDelete.images
               .map((img) => getPublicIdFromCloudinaryUrl(img.url))
               .filter((id) => id !== null);
 
             if (publicIds.length > 0) {
-              showToast("Đang xóa ảnh trên Cloudinary...", "success");
+              showToast("Deleting images on Cloudinary...", "success");
 
-              // Gọi đến API Serverless vừa tạo trên Vercel
+              // Call the Vercel Serverless API
               const response = await fetch("/api/delete-cloudinary", {
                 method: "POST",
                 headers: {
@@ -1744,19 +1748,19 @@
 
               const data = await response.json();
               if (!data.success) {
-                console.error("Lỗi khi xóa ảnh Cloudinary:", data.error);
+                console.error("Error deleting Cloudinary images:", data.error);
               }
             }
           }
 
-          // Xóa document bài viết trên Firestore
+          // Delete post document on Firestore
           await db.collection("posts").doc(postId).delete();
           posts = posts.filter((p) => p.id !== postId);
           localStorage.setItem("lumina_posts_cache", JSON.stringify(posts));
-          showToast("Đã xóa bài viết và toàn bộ ảnh thành công!");
+          showToast("Post and all images deleted successfully!");
         } catch (error) {
           console.error("Error deleting post: ", error);
-          showToast("Có lỗi xảy ra khi xóa bài viết!", "error");
+          showToast("An error occurred while deleting the post!", "error");
         }
       }
     </script>
