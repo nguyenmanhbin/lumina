@@ -1686,6 +1686,79 @@
       window.onload = function () {
         initApp();
       };
+      // Hàm trích xuất public_id từ URL của Cloudinary
+      function getPublicIdFromCloudinaryUrl(url) {
+        try {
+          // URL Cloudinary mẫu: https://res.cloudinary.com/.../upload/v12345678/lumina_portfolio/image_name.jpg
+          const parts = url.split("/upload/");
+          if (parts.length < 2) return null;
+
+          let pathPart = parts[1]; // v12345678/lumina_portfolio/image_name.jpg hoặc lumina_portfolio/image_name.jpg
+          // Bỏ phần version (bắt đầu bằng v[số]/ nếu có)
+          pathPart = pathPart.replace(/^v\d+\//, "");
+
+          // Bỏ phần mở rộng (đuôi file như .jpg, .png, .webp)
+          const lastDotIndex = pathPart.lastIndexOf(".");
+          if (lastDotIndex !== -1) {
+            pathPart = pathPart.substring(0, lastDotIndex);
+          }
+          return pathPart; // Kết quả trả về dạng: lumina_portfolio/image_name
+        } catch (e) {
+          console.error("Error parsing public_id:", e);
+          return null;
+        }
+      }
+
+      async function deletePostFromCloud(postId) {
+        if (
+          !confirm(
+            "Bạn có chắc chắn muốn xóa vĩnh viễn series này và toàn bộ ảnh trên Cloudinary không?",
+          )
+        )
+          return;
+
+        try {
+          const postToDelete = posts.find((p) => p.id === postId);
+
+          if (
+            postToDelete &&
+            postToDelete.images &&
+            postToDelete.images.length > 0
+          ) {
+            // Lấy danh sách public_id của tất cả ảnh trong bài viết
+            const publicIds = postToDelete.images
+              .map((img) => getPublicIdFromCloudinaryUrl(img.url))
+              .filter((id) => id !== null);
+
+            if (publicIds.length > 0) {
+              showToast("Đang xóa ảnh trên Cloudinary...", "success");
+
+              // Gọi đến API Serverless vừa tạo trên Vercel
+              const response = await fetch("/api/delete-cloudinary", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ publicIds }),
+              });
+
+              const data = await response.json();
+              if (!data.success) {
+                console.error("Lỗi khi xóa ảnh Cloudinary:", data.error);
+              }
+            }
+          }
+
+          // Xóa document bài viết trên Firestore
+          await db.collection("posts").doc(postId).delete();
+          posts = posts.filter((p) => p.id !== postId);
+          localStorage.setItem("lumina_posts_cache", JSON.stringify(posts));
+          showToast("Đã xóa bài viết và toàn bộ ảnh thành công!");
+        } catch (error) {
+          console.error("Error deleting post: ", error);
+          showToast("Có lỗi xảy ra khi xóa bài viết!", "error");
+        }
+      }
     </script>
   </body>
 </html>
