@@ -39,8 +39,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
     <style>
-      /* THEME VARIABLES: NIGHT (DEFAULT) */
       :root {
         --bg: #070708;
         --surface: #0f1012;
@@ -51,7 +51,6 @@
         --card-bg: #0a0b0c;
       }
 
-      /* THEME VARIABLES: LIGHT MODE */
       html.light {
         --bg: #f8f6f0;
         --surface: #ffffff;
@@ -141,7 +140,6 @@
         display: none;
       }
 
-      /* Masonry Layout */
       .masonry-grid {
         column-count: 1;
         column-gap: 2rem;
@@ -178,7 +176,6 @@
         }
       }
 
-      /* Glass Panel */
       .glass-panel {
         background: rgba(13, 14, 16, 0.75);
         backdrop-filter: blur(20px);
@@ -192,7 +189,6 @@
         background: rgba(255, 255, 255, 0.85);
       }
 
-      /* Frame Effect */
       .frame {
         position: relative;
         overflow: hidden;
@@ -282,7 +278,6 @@
       <div
         class="max-w-[1600px] mx-auto px-6 sm:px-10 h-20 flex items-center justify-between"
       >
-        <!-- Logo -->
         <a
           href="#"
           onclick="
@@ -309,9 +304,7 @@
           </div>
         </a>
 
-        <!-- Header Actions -->
         <div class="flex items-center space-x-3 sm:space-x-4">
-          <!-- Nút chuyển đổi Dark/Light Mode -->
           <button
             onclick="toggleTheme()"
             class="w-10 h-10 rounded-full border border-[var(--line)] hover:border-amber-500/40 bg-[var(--surface)] text-[var(--ink)] flex items-center justify-center transition shadow-sm"
@@ -353,7 +346,6 @@
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-6 sm:px-10 py-10">
       <!-- VIEWER SITE (Home Grid) -->
       <section id="site-viewer" class="space-y-14">
-        <!-- Hero Section -->
         <div
           class="grid lg:grid-cols-12 gap-10 lg:gap-16 items-center pt-4 sm:pt-8 border-b border-[var(--line)] pb-14"
         >
@@ -391,7 +383,6 @@
           ></a>
         </div>
 
-        <!-- Filter & Search Bar -->
         <div
           id="filter-bar"
           class="glass-panel rounded-2xl p-5 space-y-4 transition-all sticky top-24 z-30 shadow-2xl"
@@ -428,10 +419,8 @@
           ></div>
         </div>
 
-        <!-- Posts Masonry Grid -->
         <div id="viewer-posts-container" class="masonry-grid pt-2"></div>
 
-        <!-- Empty State -->
         <div id="viewer-empty-state" class="hidden text-center py-28 space-y-4">
           <div
             class="w-16 h-16 bg-[var(--surface)] border border-[var(--line)] rounded-full flex items-center justify-center mx-auto text-[var(--mute)] text-xl"
@@ -601,7 +590,6 @@
           </div>
         </div>
 
-        <!-- Admin Tab 1: Form -->
         <div id="admin-tab-create" class="space-y-6 max-w-4xl">
           <form
             id="post-form"
@@ -702,7 +690,8 @@
                   Click or drag &amp; drop image files
                 </p>
                 <p class="text-[10px] text-[var(--mute)]">
-                  Supports JPG, PNG, WEBP high-resolution files
+                  Supports JPG, PNG, WEBP high-resolution files (Có thể chọn
+                  nhiều ảnh cùng lúc)
                 </p>
                 <input
                   type="file"
@@ -728,7 +717,7 @@
                 </div>
                 <div
                   id="queue-list"
-                  class="grid grid-cols-3 sm:grid-cols-6 gap-3"
+                  class="grid grid-cols-3 sm:grid-cols-6 gap-3 max-h-60 overflow-y-auto pr-1"
                 ></div>
               </div>
             </div>
@@ -754,7 +743,6 @@
           </form>
         </div>
 
-        <!-- Admin Tab 2: Manage List -->
         <div id="admin-tab-manage" class="hidden">
           <div
             class="bg-[var(--surface)] border border-[var(--line)] rounded-3xl overflow-hidden shadow-xl backdrop-blur-lg"
@@ -912,8 +900,7 @@
       firebase.initializeApp(firebaseConfig);
       const auth = firebase.auth();
       const db = firebase.firestore();
-
-      const ADMIN_CREDENTIALS = { username: "admin", password: "admin123" };
+      const storage = firebase.storage();
 
       let posts = JSON.parse(localStorage.getItem("lumina_posts_cache")) || [];
       let isAdminLoggedIn = false;
@@ -924,7 +911,6 @@
       let currentLightboxIndex = 0;
       let isZoomed = false;
 
-      // ================= QUẢN LÝ GIAO DIỆN (THEME TOGGLE) =================
       function initTheme() {
         const savedTheme = localStorage.getItem("lumina_theme") || "dark";
         const htmlEl = document.documentElement;
@@ -965,7 +951,7 @@
       }
 
       async function initApp() {
-        initTheme(); // Khởi tạo theme ngay khi tải trang
+        initTheme();
 
         if (localStorage.getItem("lumina_admin_auth") === "true") {
           isAdminLoggedIn = true;
@@ -1094,6 +1080,7 @@
         try {
           await auth.signInWithEmailAndPassword(email, password);
           isAdminLoggedIn = true;
+          localStorage.setItem("lumina_admin_auth", "true");
           document.getElementById("login-error").classList.add("hidden");
           handleRouting();
         } catch (error) {
@@ -1416,19 +1403,17 @@
         if (!files || files.length === 0) return;
         Array.from(files).forEach((file) => {
           if (!file.type.startsWith("image/")) return;
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            uploadQueue.push({
-              id:
-                "queue-" +
-                Date.now() +
-                "-" +
-                Math.random().toString(36).substr(2, 4),
-              url: e.target.result,
-            });
-            renderQueue();
-          };
-          reader.readAsDataURL(file);
+          const previewUrl = URL.createObjectURL(file);
+          uploadQueue.push({
+            id:
+              "queue-" +
+              Date.now() +
+              "-" +
+              Math.random().toString(36).substr(2, 4),
+            file: file,
+            url: previewUrl,
+          });
+          renderQueue();
         });
       }
 
@@ -1483,50 +1468,67 @@
           return;
         }
 
-        let postData;
-        let targetId = editingId;
+        showToast("Đang tải ảnh lên hệ thống, vui lòng chờ...", "success");
 
-        if (editingId) {
-          const targetPost = posts.find((p) => p.id === editingId);
-          postData = {
-            id: editingId,
-            title,
-            category,
-            date,
-            description: desc,
-            views: targetPost ? targetPost.views || 0 : 0,
-            isPublic: true,
-            images: uploadQueue.map((item) => ({
-              id: item.id || "img-" + Date.now(),
-              url: item.url,
-            })),
-          };
-          showToast("Series updated successfully!");
-        } else {
-          targetId = "post-" + Date.now();
-          postData = {
-            id: targetId,
-            title,
-            category,
-            date,
-            description: desc,
-            views: 0,
-            isPublic: true,
-            images: uploadQueue.map((item) => ({
-              id: "img-" + Date.now(),
-              url: item.url,
-            })),
-          };
-          showToast("New series published successfully!");
+        try {
+          const uploadedImages = [];
+          for (let i = 0; i < uploadQueue.length; i++) {
+            const item = uploadQueue[i];
+            if (item.file) {
+              const filePath = `portfolio/${Date.now()}_${i}_${item.file.name}`;
+              const storageRef = storage.ref().child(filePath);
+              const snapshot = await storageRef.put(item.file);
+              const downloadURL = await snapshot.ref.getDownloadURL();
+              uploadedImages.push({
+                id: "img-" + Date.now() + "-" + i,
+                url: downloadURL,
+              });
+            } else if (item.url) {
+              uploadedImages.push({ id: item.id, url: item.url });
+            }
+          }
+
+          let targetId = editingId;
+          if (editingId) {
+            const targetPost = posts.find((p) => p.id === editingId);
+            const postData = {
+              id: editingId,
+              title,
+              category,
+              date,
+              description: desc,
+              views: targetPost ? targetPost.views || 0 : 0,
+              isPublic: true,
+              images: uploadedImages,
+            };
+            await savePostToCloud(postData);
+            showToast("Series updated successfully!");
+          } else {
+            targetId = "post-" + Date.now();
+            const postData = {
+              id: targetId,
+              title,
+              category,
+              date,
+              description: desc,
+              views: 0,
+              isPublic: true,
+              images: uploadedImages,
+            };
+            await savePostToCloud(postData);
+            showToast("New series published successfully!");
+          }
+
+          await fetchPostsFromCloud();
+          resetForm();
+
+          setTimeout(() => {
+            navigateTo(`post-${targetId.replace("post-", "")}`);
+          }, 500);
+        } catch (error) {
+          console.error("Error publishing post:", error);
+          showToast("Lỗi khi tải ảnh lên hệ thống!", "error");
         }
-
-        await savePostToCloud(postData);
-        await fetchPostsFromCloud();
-        resetForm();
-
-        setTimeout(() => {
-          navigateTo(`post-${targetId.replace("post-", "")}`);
-        }, 500);
       }
 
       function editPost(postId) {
