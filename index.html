@@ -1448,6 +1448,10 @@
         document.getElementById("file-input").value = "";
       }
 
+      // Cấu hình thông tin Cloudinary của bạn
+      const CLOUDINARY_CLOUD_NAME = "l3symcza";
+      const CLOUDINARY_UPLOAD_PRESET = "lumina_preset";
+
       async function handlePublishPost(e) {
         e.preventDefault();
         if (!isAdminLoggedIn) return;
@@ -1468,21 +1472,36 @@
           return;
         }
 
-        showToast("Đang tải ảnh lên hệ thống, vui lòng chờ...", "success");
+        showToast("Đang tải ảnh lên Cloudinary, vui lòng chờ...", "success");
 
         try {
           const uploadedImages = [];
+
+          // Lần lượt tải từng ảnh lên Cloudinary
           for (let i = 0; i < uploadQueue.length; i++) {
             const item = uploadQueue[i];
             if (item.file) {
-              const filePath = `portfolio/${Date.now()}_${i}_${item.file.name}`;
-              const storageRef = storage.ref().child(filePath);
-              const snapshot = await storageRef.put(item.file);
-              const downloadURL = await snapshot.ref.getDownloadURL();
-              uploadedImages.push({
-                id: "img-" + Date.now() + "-" + i,
-                url: downloadURL,
-              });
+              const formData = new FormData();
+              formData.append("file", item.file);
+              formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+              const response = await fetch(
+                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+                {
+                  method: "POST",
+                  body: formData,
+                },
+              );
+
+              const data = await response.json();
+              if (data.secure_url) {
+                uploadedImages.push({
+                  id: "img-" + Date.now() + "-" + i,
+                  url: data.secure_url,
+                });
+              } else {
+                throw new Error("Lỗi khi tải ảnh lên Cloudinary");
+              }
             } else if (item.url) {
               uploadedImages.push({ id: item.id, url: item.url });
             }
@@ -1527,7 +1546,7 @@
           }, 500);
         } catch (error) {
           console.error("Error publishing post:", error);
-          showToast("Lỗi khi tải ảnh lên hệ thống!", "error");
+          showToast("Có lỗi xảy ra khi tải ảnh lên Cloudinary!", "error");
         }
       }
 
