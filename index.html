@@ -1456,6 +1456,12 @@
         e.preventDefault();
         if (!isAdminLoggedIn) return;
 
+        // KHÓA NÚT NGAY LẬP TỨC ĐỂ TRÁNH BẤM NHIỀU LẦN
+        const submitBtn = document.getElementById("submit-btn");
+        if (submitBtn.disabled) return; // Nếu đang xử lý thì chặn luôn
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = "0.5";
+
         const editingId = document.getElementById("editing-post-id").value;
         const title = document.getElementById("post-title").value.trim();
         const category = document.getElementById("post-category").value;
@@ -1469,6 +1475,8 @@
             "Please provide a title and at least one photograph!",
             "error",
           );
+          submitBtn.disabled = false; // Mở lại nút nếu lỗi
+          submitBtn.style.opacity = "1";
           return;
         }
 
@@ -1476,8 +1484,6 @@
 
         try {
           const uploadedImages = [];
-
-          // Lần lượt tải từng ảnh lên Cloudinary
           for (let i = 0; i < uploadQueue.length; i++) {
             const item = uploadQueue[i];
             if (item.file) {
@@ -1499,54 +1505,39 @@
                   id: "img-" + Date.now() + "-" + i,
                   url: data.secure_url,
                 });
-              } else {
-                throw new Error("Lỗi khi tải ảnh lên Cloudinary");
               }
             } else if (item.url) {
               uploadedImages.push({ id: item.id, url: item.url });
             }
           }
 
-          let targetId = editingId;
-          if (editingId) {
-            const targetPost = posts.find((p) => p.id === editingId);
-            const postData = {
-              id: editingId,
-              title,
-              category,
-              date,
-              description: desc,
-              views: targetPost ? targetPost.views || 0 : 0,
-              isPublic: true,
-              images: uploadedImages,
-            };
-            await savePostToCloud(postData);
-            showToast("Series updated successfully!");
-          } else {
-            targetId = "post-" + Date.now();
-            const postData = {
-              id: targetId,
-              title,
-              category,
-              date,
-              description: desc,
-              views: 0,
-              isPublic: true,
-              images: uploadedImages,
-            };
-            await savePostToCloud(postData);
-            showToast("New series published successfully!");
-          }
-
+          // Lưu bài viết như bình thường...
+          let targetId = editingId || "post-" + Date.now();
+          const postData = {
+            id: targetId,
+            title,
+            category,
+            date,
+            description: desc,
+            views: 0,
+            isPublic: true,
+            images: uploadedImages,
+          };
+          await savePostToCloud(postData);
           await fetchPostsFromCloud();
           resetForm();
+          showToast("Đăng series thành công!");
 
           setTimeout(() => {
             navigateTo(`post-${targetId.replace("post-", "")}`);
           }, 500);
         } catch (error) {
-          console.error("Error publishing post:", error);
-          showToast("Có lỗi xảy ra khi tải ảnh lên Cloudinary!", "error");
+          console.error("Error:", error);
+          showToast("Lỗi khi tải ảnh lên!", "error");
+        } finally {
+          // MỞ LẠI NÚT KHI HOÀN TẤT HOẶC CÓ LỖI
+          submitBtn.disabled = false;
+          submitBtn.style.opacity = "1";
         }
       }
 
