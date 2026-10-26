@@ -721,7 +721,25 @@
                 ></div>
               </div>
             </div>
-
+            <!-- THANH TIẾN TRÌNH UPLOAD (ĐẶT Ở ĐÂY CHO ĐẸP VÀ DỄ NHÌN) -->
+            <div id="upload-progress-container" class="hidden space-y-2 py-2">
+              <div class="flex justify-between text-xs text-[var(--mute)]">
+                <span
+                  id="upload-status-text"
+                  class="font-medium text-[var(--ink)]"
+                  >Đang chuẩn bị tải lên...</span
+                >
+                <span id="upload-percent">0%</span>
+              </div>
+              <div
+                class="w-full bg-[var(--bg)] rounded-full h-2 overflow-hidden border border-[var(--line)] p-0.5"
+              >
+                <div
+                  id="upload-progress-bar"
+                  class="bg-[var(--brass)] h-full w-0 rounded-full transition-all duration-200"
+                ></div>
+              </div>
+            </div>
             <div
               class="flex justify-end space-x-3 pt-4 border-t border-[var(--line)]"
             >
@@ -1456,11 +1474,20 @@
         e.preventDefault();
         if (!isAdminLoggedIn) return;
 
-        // KHÓA NÚT NGAY LẬP TỨC ĐỂ TRÁNH BẤM NHIỀU LẦN
         const submitBtn = document.getElementById("submit-btn");
-        if (submitBtn.disabled) return; // Nếu đang xử lý thì chặn luôn
+        if (submitBtn.disabled) return;
         submitBtn.disabled = true;
         submitBtn.style.opacity = "0.5";
+
+        const progressContainer = document.getElementById(
+          "upload-progress-container",
+        );
+        const progressBar = document.getElementById("upload-progress-bar");
+        const progressText = document.getElementById("upload-status-text");
+        const progressPercent = document.getElementById("upload-percent");
+
+        // Hiển thị thanh tiến trình lên
+        progressContainer.classList.remove("hidden");
 
         const editingId = document.getElementById("editing-post-id").value;
         const title = document.getElementById("post-title").value.trim();
@@ -1471,47 +1498,69 @@
         const desc = document.getElementById("post-desc").value.trim();
 
         if (!title || uploadQueue.length === 0) {
-          showToast(
-            "Please provide a title and at least one photograph!",
-            "error",
-          );
-          submitBtn.disabled = false; // Mở lại nút nếu lỗi
+          showToast("Vui lòng nhập tiêu đề và chọn ít nhất một ảnh!", "error");
+          submitBtn.disabled = false;
           submitBtn.style.opacity = "1";
+          progressContainer.classList.add("hidden");
           return;
         }
 
-        showToast("Đang tải ảnh lên Cloudinary, vui lòng chờ...", "success");
-
         try {
           const uploadedImages = [];
+          const totalFiles = uploadQueue.filter((item) => item.file).length;
+          let completedFiles = 0;
+
           for (let i = 0; i < uploadQueue.length; i++) {
             const item = uploadQueue[i];
             if (item.file) {
+              // Cập nhật text trạng thái số lượng ảnh đang chạy
+              progressText.innerText = `Đang tải ảnh ${completedFiles + 1} / ${totalFiles}`;
+
               const formData = new FormData();
               formData.append("file", item.file);
               formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+              formData.append("folder", "lumina_portfolio"); // Tự động gom vào thư mục quản lý
 
-              const response = await fetch(
-                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-                {
-                  method: "POST",
-                  body: formData,
-                },
-              );
+              // Dùng Promise kết hợp XMLHttpRequest để theo dõi tiến trình từng file
+              const secureUrl = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open(
+                  "POST",
+                  `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+                );
 
-              const data = await response.json();
-              if (data.secure_url) {
+                xhr.onload = function () {
+                  if (xhr.status === 200) {
+                    const data = JSON.parse(xhr.responseText);
+                    resolve(data.secure_url);
+                  } else {
+                    reject(new Error("Upload failed"));
+                  }
+                };
+
+                xhr.onerror = () => reject(new Error("Network error"));
+                xhr.send(formData);
+              });
+
+              if (secureUrl) {
                 uploadedImages.push({
                   id: "img-" + Date.now() + "-" + i,
-                  url: data.secure_url,
+                  url: secureUrl,
                 });
               }
+
+              completedFiles++;
+
+              // Tính toán phần trăm tổng thể để chạy thanh progress bar
+              const percent = Math.round((completedFiles / totalFiles) * 100);
+              progressBar.style.width = percent + "%";
+              progressPercent.innerText = percent + "%";
             } else if (item.url) {
               uploadedImages.push({ id: item.id, url: item.url });
             }
           }
 
-          // Lưu bài viết như bình thường...
+          progressText.innerText = "Đang lưu bài viết lên cơ sở dữ liệu...";
           let targetId = editingId || "post-" + Date.now();
           const postData = {
             id: targetId,
@@ -1523,6 +1572,7 @@
             isPublic: true,
             images: uploadedImages,
           };
+
           await savePostToCloud(postData);
           await fetchPostsFromCloud();
           resetForm();
@@ -1533,11 +1583,12 @@
           }, 500);
         } catch (error) {
           console.error("Error:", error);
-          showToast("Lỗi khi tải ảnh lên!", "error");
+          showToast("Có lỗi xảy ra khi tải ảnh lên!", "error");
         } finally {
-          // MỞ LẠI NÚT KHI HOÀN TẤT HOẶC CÓ LỖI
           submitBtn.disabled = false;
           submitBtn.style.opacity = "1";
+          progressContainer.classList.add("hidden");
+          progressBar.style.width = "0%";
         }
       }
 
